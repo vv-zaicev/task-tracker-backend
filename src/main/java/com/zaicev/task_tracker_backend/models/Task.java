@@ -1,6 +1,8 @@
 package com.zaicev.task_tracker_backend.models;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -22,7 +24,10 @@ public class Task {
 	
 	private String description;
 	
+	@Enumerated(EnumType.STRING)
+	private TaskStatus status;
+	
 	@ManyToOne
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "owner_id")
 	private User user;
 }
