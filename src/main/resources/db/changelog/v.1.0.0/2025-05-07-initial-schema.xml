@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+    <changeSet id="2025-05-07-create-table-users" author="zaicev">
+    	<createTable tableName="users">
+    		<column name="id" type="int" autoIncrement="true">
+				<constraints nullable="false" primaryKey="true"/>
+			</column>
+			<column name="email" type="varchar(64)">
+				<constraints unique="true" nullable="false"/>
+			</column>
+			<column name="password" type="varchar(255)">
+				<constraints nullable="false"/>
+			</column>
+    	</createTable>
+    </changeSet>
+    <changeSet id="2025-05-07-create-table-roles" author="zaicev">
+		<createTable tableName="user_roles">
+			<column name="user_id" type="int">
+			</column>
+			<column name="role" type="varchar(64)">
+			</column>
+		</createTable>
+	</changeSet>
+	<changeSet id="2025-05-07-create-table-tasks" author="zaicev">
+		<createTable tableName="tasks">
+			<column name="id" type="int" autoIncrement="true">
+				<constraints nullable="false" primaryKey="true"/>
+			</column>
+			<column name="title" type="varchar(64)">
+			</column>
+			<column name="description" type="varchar(255)">
+			</column>
+			<column name="status" type="varchar(64)">
+			</column>
+			<column name="owner_id" type="int">
+				<constraints foreignKeyName="task_owner_id_users_id" references="users(id)"/>
+			</column>
+		</createTable>
+	</changeSet>
+</databaseChangeLog>
