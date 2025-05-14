@@ -12,19 +12,13 @@ public class UserDetailsImpl implements UserDetails {
 
 	private String username;
 	private String password;
-	private Long id;
 	private Set<String> roles = new HashSet<>();
 
 	public UserDetailsImpl(String email, String password, Long id, Set<String> roles) {
 		super();
 		this.username = email;
 		this.password = password;
-		this.id = id;
 		this.roles = roles;
-	}
-
-	public Long getId() {
-		return id;
 	}
 
 	@Override
