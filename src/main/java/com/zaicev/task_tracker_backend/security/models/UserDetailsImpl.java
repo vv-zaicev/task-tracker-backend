@@ -14,7 +14,7 @@ public class UserDetailsImpl implements UserDetails {
 	private String password;
 	private Set<String> roles = new HashSet<>();
 
-	public UserDetailsImpl(String email, String password, Long id, Set<String> roles) {
+	public UserDetailsImpl(String email, String password, Set<String> roles) {
 		super();
 		this.username = email;
 		this.password = password;
