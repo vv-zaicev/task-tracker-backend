@@ -15,6 +15,6 @@ public interface TaskDTOConverter {
 	};
 	
 	default public TaskResponseDTO toDTO(Task task) {
-		return new TaskResponseDTO(task.getId(), task.getTitle(), task.getDescription(), task.getStatus());
+		return new TaskResponseDTO(task.getId(), task.getTitle(), task.getDescription(), task.getCreatedAt(), task.getStatus());
 	};
 }
