@@ -16,6 +16,7 @@ import com.zaicev.task_tracker_backend.repository.UserRepository;
 import com.zaicev.task_tracker_backend.security.exceptions.UserNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.Setter;
 
 @Service
 public class TaskService {
@@ -23,7 +24,8 @@ public class TaskService {
 	
 	private final UserRepository userRepository;
 	
-	private final TaskDTOConverter taskDTOConverter = new DefaultTaskDTOConverter();
+	@Setter
+	private TaskDTOConverter taskDTOConverter = new DefaultTaskDTOConverter();
 
 	public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
 		this.taskRepository = taskRepository;
@@ -34,14 +36,14 @@ public class TaskService {
 	public TaskResponseDTO createTask(TaskRequestDTO taskRequestDTO, String userEmail) {
 		Task task = taskDTOConverter.toEntity(taskRequestDTO);
 		task.setUser(userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail)));
-		taskRepository.save(task);
+		task = taskRepository.save(task);
 		return taskDTOConverter.toDTO(task);
 	}
 	
 	public TaskResponseDTO updateTask(TaskRequestDTO taskRequestDTO, String userEmail) {
 		Task task = taskDTOConverter.toEntity(taskRequestDTO);
 		task.setUser(userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail)));
-		taskRepository.save(task);
+		task = taskRepository.save(task);
 		return taskDTOConverter.toDTO(task);
 	}
 	
@@ -58,6 +60,7 @@ public class TaskService {
 	public TaskResponseDTO completeTask(Long id) {
 		Task task = taskRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Entity with %d id not found", id)));
 		task.setStatus(TaskStatus.COMPLETE);
+		taskRepository.save(task);
 		return taskDTOConverter.toDTO(task);
 	}
 }
