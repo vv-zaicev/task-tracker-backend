@@ -1,5 +1,8 @@
 package com.zaicev.task_tracker_backend.models;
 
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -23,6 +26,9 @@ public class Task {
 	private String title;
 	
 	private String description;
+	
+	@Column(name = "created_at")
+	private LocalDateTime createdAt;
 	
 	@Enumerated(EnumType.STRING)
 	private TaskStatus status;
