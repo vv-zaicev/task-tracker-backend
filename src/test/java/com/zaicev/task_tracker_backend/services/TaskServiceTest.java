@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend;
+package com.zaicev.task_tracker_backend.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import com.zaicev.task_tracker_backend.dto.TaskRequestDTO;
 import com.zaicev.task_tracker_backend.dto.TaskResponseDTO;
@@ -25,7 +26,6 @@ import com.zaicev.task_tracker_backend.models.TaskStatus;
 import com.zaicev.task_tracker_backend.models.User;
 import com.zaicev.task_tracker_backend.repository.TaskRepository;
 import com.zaicev.task_tracker_backend.repository.UserRepository;
-import com.zaicev.task_tracker_backend.services.TaskService;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -42,18 +42,27 @@ public class TaskServiceTest {
 	private TaskService taskService;
 
 	private final String validEmail = "test@example.com";
+	private final String invalidEmail = "invalid@example.com";
+	private final Long validUserId = 1L;
+	private final Long invalidUserId = 2L;
 	private final String validTitle = "title";
 	private final String validDescription = "description";
 	private final Long validTaskId = 1L;
 	private final Long invalidTaskId = 999L;
 
 	private User testUser;
+	private User invalidUser;
 	private Task testTask;
 
 	@BeforeEach
 	void setUp() {
 		testUser = new User();
 		testUser.setEmail(validEmail);
+		testUser.setId(validUserId);
+
+		invalidUser = new User();
+		invalidUser.setEmail(invalidEmail);
+		invalidUser.setId(invalidUserId);
 
 		testTask = new Task();
 		testTask.setId(validTaskId);
@@ -81,8 +90,9 @@ public class TaskServiceTest {
 
 	@Test
 	void updateTask_WithValidData_UpdatesTask() {
-		TaskRequestDTO requestDTO = new TaskRequestDTO(null, validTitle, validDescription, TaskStatus.IN_PROGRESS);
+		TaskRequestDTO requestDTO = new TaskRequestDTO(validTaskId, validTitle, validDescription, TaskStatus.IN_PROGRESS);
 		when(userRepository.findByEmail(validEmail)).thenReturn(Optional.of(testUser));
+		when(taskRepository.findById(validTaskId)).thenReturn(Optional.of(testTask));
 		when(taskRepository.save(any(Task.class))).thenReturn(testTask);
 
 		TaskResponseDTO result = taskService.updateTask(requestDTO, validEmail);
@@ -93,12 +103,39 @@ public class TaskServiceTest {
 		assertEquals(validTitle, result.title());
 		assertEquals(validDescription, result.description());
 	}
+	
+	@Test
+	void updateTask_WithInvalidUser_ThrowsException() {
+		TaskRequestDTO requestDTO = new TaskRequestDTO(validTaskId, validTitle, validDescription, TaskStatus.IN_PROGRESS);
+		when(userRepository.findByEmail(invalidEmail)).thenReturn(Optional.of(invalidUser));
+		when(taskRepository.findById(validTaskId)).thenReturn(Optional.of(testTask));
+
+		assertThrows(AccessDeniedException.class, () -> taskService.updateTask(requestDTO, invalidEmail));
+	}
 
 	@Test
-	void deleteTask_WithValidId_DeletesTask() {
-		taskService.deleteTask(validTaskId);
+	void deleteTask_WithValidIdAndUser_DeletesTask() {
+		when(taskRepository.findById(validTaskId)).thenReturn(Optional.of(testTask));
+		when(userRepository.findByEmail(validEmail)).thenReturn(Optional.of(testUser));
+		
+		taskService.deleteTask(validTaskId, validEmail);
 
 		verify(taskRepository).deleteById(validTaskId);
+	}
+	
+	@Test
+	void deleteTask_WithInvalidId_ThrowsException() {
+		when(taskRepository.findById(validTaskId)).thenReturn(Optional.empty());
+		
+		assertThrows(EntityNotFoundException.class, () -> taskService.deleteTask(validTaskId, validEmail));
+	}
+	
+	@Test
+	void deleteTask_WithInvalidUser_ThrowsException() {
+		when(taskRepository.findById(validTaskId)).thenReturn(Optional.of(testTask));
+		when(userRepository.findByEmail(invalidEmail)).thenReturn(Optional.of(invalidUser));
+		
+		assertThrows(AccessDeniedException.class, () -> taskService.deleteTask(validTaskId, invalidEmail));
 	}
 
 	@Test
@@ -116,23 +153,31 @@ public class TaskServiceTest {
 	}
 
 	@Test
-	void completeTask_WithValidId_UpdatesStatus() {
+	void completeTask_WithValidIdAndUser_UpdatesStatus() {
 		when(taskRepository.findById(validTaskId)).thenReturn(Optional.of(testTask));
+		when(userRepository.findByEmail(validEmail)).thenReturn(Optional.of(testUser));
 
-		TaskResponseDTO result = taskService.completeTask(validTaskId);
+		TaskResponseDTO result = taskService.completeTask(validTaskId, validEmail);
 
 		assertEquals(TaskStatus.COMPLETE, testTask.getStatus());
 		verify(taskRepository).save(testTask);
 		assertEquals(TaskStatus.COMPLETE, result.status());
 	}
+
+	@Test
+	void completeTask_WithInvalidId_ThrowsException() {
+		when(taskRepository.findById(invalidTaskId)).thenReturn(Optional.empty());
+		
+		assertThrows(EntityNotFoundException.class,
+				() -> taskService.completeTask(invalidTaskId, validEmail));
+	}
 	
-	 @Test
-	    void completeTask_WithInvalidId_ThrowsException() {
-	        when(taskRepository.findById(invalidTaskId)).thenReturn(Optional.empty());
-
-	        assertThrows(EntityNotFoundException.class,
-	            () -> taskService.completeTask(invalidTaskId));
-	    }
-
+	@Test
+	void competeTask_WithInvalidUser_ThrowsException() {
+		when(taskRepository.findById(validTaskId)).thenReturn(Optional.of(testTask));
+		when(userRepository.findByEmail(invalidEmail)).thenReturn(Optional.of(invalidUser));
+		
+		assertThrows(AccessDeniedException.class, () -> taskService.completeTask(validTaskId, invalidEmail));
+	}
 
 }
