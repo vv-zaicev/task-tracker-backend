@@ -1,6 +1,7 @@
 package com.zaicev.task_tracker_backend.models;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import jakarta.persistence.CollectionTable;
@@ -35,4 +36,21 @@ public class User {
 	@CollectionTable(name = "user_roles", joinColumns = {@JoinColumn(name = "user_id")})
 	@Column(name = "role")
 	private Set<String> roles = new HashSet<>();
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!(obj instanceof User))
+			return false;
+		User other = (User) obj;
+		return Objects.equals(id, other.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id);
+	}
+	
+	
 }
