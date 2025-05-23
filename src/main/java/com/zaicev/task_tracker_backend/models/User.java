@@ -15,11 +15,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "users")
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,6 +34,7 @@ public class User {
 
 	private String password;
 
+	@Builder.Default
 	@ElementCollection(fetch = FetchType.EAGER)
 	@CollectionTable(name = "user_roles", joinColumns = {@JoinColumn(name = "user_id")})
 	@Column(name = "role")
