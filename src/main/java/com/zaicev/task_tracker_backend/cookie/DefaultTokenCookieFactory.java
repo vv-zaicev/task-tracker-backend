@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend.security.cookie;
+package com.zaicev.task_tracker_backend.cookie;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -8,7 +8,7 @@ import java.util.function.Function;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
-import com.zaicev.task_tracker_backend.security.models.Token;
+import com.zaicev.task_tracker_backend.models.Token;
 
 import lombok.Setter;
 

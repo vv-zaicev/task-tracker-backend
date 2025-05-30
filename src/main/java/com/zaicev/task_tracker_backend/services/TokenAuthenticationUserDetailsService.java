@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend.security.services;
+package com.zaicev.task_tracker_backend.services;
 
 import java.util.HashSet;
 
@@ -7,8 +7,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
+import com.zaicev.task_tracker_backend.models.Token;
 import com.zaicev.task_tracker_backend.models.User;
-import com.zaicev.task_tracker_backend.security.models.Token;
 
 public class TokenAuthenticationUserDetailsService implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
 

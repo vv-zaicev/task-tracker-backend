@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend.security.models;
+package com.zaicev.task_tracker_backend.models;
 
 import java.time.Instant;
 import java.util.List;

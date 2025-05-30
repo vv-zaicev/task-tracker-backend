@@ -9,12 +9,12 @@ import com.zaicev.task_tracker_backend.converters.DefaultTaskDTOConverter;
 import com.zaicev.task_tracker_backend.converters.TaskDTOConverter;
 import com.zaicev.task_tracker_backend.dto.TaskRequestDTO;
 import com.zaicev.task_tracker_backend.dto.TaskResponseDTO;
+import com.zaicev.task_tracker_backend.exceptions.UserNotFoundException;
 import com.zaicev.task_tracker_backend.models.Task;
 import com.zaicev.task_tracker_backend.models.TaskStatus;
 import com.zaicev.task_tracker_backend.models.User;
 import com.zaicev.task_tracker_backend.repository.TaskRepository;
 import com.zaicev.task_tracker_backend.repository.UserRepository;
-import com.zaicev.task_tracker_backend.security.exceptions.UserNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.Setter;

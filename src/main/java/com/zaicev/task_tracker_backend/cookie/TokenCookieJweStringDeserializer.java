@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend.security.cookie;
+package com.zaicev.task_tracker_backend.cookie;
 
 import java.text.ParseException;
 import java.util.UUID;
@@ -7,7 +7,7 @@ import java.util.function.Function;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWEDecrypter;
 import com.nimbusds.jwt.EncryptedJWT;
-import com.zaicev.task_tracker_backend.security.models.Token;
+import com.zaicev.task_tracker_backend.models.Token;
 
 import lombok.extern.slf4j.Slf4j;
 

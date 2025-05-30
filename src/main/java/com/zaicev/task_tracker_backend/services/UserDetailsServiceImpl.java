@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend.security.services;
+package com.zaicev.task_tracker_backend.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -6,9 +6,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.zaicev.task_tracker_backend.exceptions.UserNotFoundException;
 import com.zaicev.task_tracker_backend.models.User;
 import com.zaicev.task_tracker_backend.repository.UserRepository;
-import com.zaicev.task_tracker_backend.security.exceptions.UserNotFoundException;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {

@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend.security.cookie;
+package com.zaicev.task_tracker_backend.cookie;
 
 import java.util.function.Function;
 
@@ -12,8 +12,8 @@ import org.springframework.security.web.authentication.logout.CookieClearingLogo
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.csrf.CsrfFilter;
 
-import com.zaicev.task_tracker_backend.security.models.Token;
-import com.zaicev.task_tracker_backend.security.services.TokenAuthenticationUserDetailsService;
+import com.zaicev.task_tracker_backend.models.Token;
+import com.zaicev.task_tracker_backend.services.TokenAuthenticationUserDetailsService;
 
 import lombok.Setter;
 

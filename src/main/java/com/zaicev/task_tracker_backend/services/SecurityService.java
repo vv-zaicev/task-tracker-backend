@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend.security.services;
+package com.zaicev.task_tracker_backend.services;
 
 import org.springframework.stereotype.Service;
 

@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend.security.exceptions;
+package com.zaicev.task_tracker_backend.exceptions;
 
 public class EmailAlreadyTakenException extends SecurityException{
 

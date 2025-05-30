@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend.security.cookie;
+package com.zaicev.task_tracker_backend.cookie;
 
 import java.util.Date;
 import java.util.function.Function;
@@ -10,7 +10,7 @@ import com.nimbusds.jose.JWEEncrypter;
 import com.nimbusds.jose.JWEHeader;
 import com.nimbusds.jwt.EncryptedJWT;
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.zaicev.task_tracker_backend.security.models.Token;
+import com.zaicev.task_tracker_backend.models.Token;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;

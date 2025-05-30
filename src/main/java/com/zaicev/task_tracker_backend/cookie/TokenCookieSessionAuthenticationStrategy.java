@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend.security.cookie;
+package com.zaicev.task_tracker_backend.cookie;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -9,7 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
-import com.zaicev.task_tracker_backend.security.models.Token;
+import com.zaicev.task_tracker_backend.models.Token;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
