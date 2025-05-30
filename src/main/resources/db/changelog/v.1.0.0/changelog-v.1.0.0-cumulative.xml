@@ -6,4 +6,5 @@
     	
     	<include file="2025-05-07-initial-schema.xml" relativeToChangelogFile="true"/>
     	<include file="2025-05-19-add-created-at-task.xml" relativeToChangelogFile="true"/>
+    	<include file="2025-05-30-user-extension.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
