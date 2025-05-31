@@ -7,12 +7,13 @@ import com.zaicev.task_tracker_backend.models.User;
 public interface UserDTOConverter {
 	default public User toEntity(UserRequestDTO userRequestDTO) {
 		User user = new User();
+		user.setUsername(userRequestDTO.username());
 		user.setEmail(userRequestDTO.email());
 		user.setPassword(userRequestDTO.password());
 		return user;
 	};
 	
 	default public UserResponseDTO toDTO(User user) {
-		return new UserResponseDTO(user.getEmail());
+		return new UserResponseDTO(user.getUsername(), user.getEmail());
 	};
 }
