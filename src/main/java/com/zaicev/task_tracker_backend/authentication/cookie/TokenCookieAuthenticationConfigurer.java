@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend.cookie;
+package com.zaicev.task_tracker_backend.authentication.cookie;
 
 import java.util.function.Function;
 
@@ -31,7 +31,7 @@ public class TokenCookieAuthenticationConfigurer extends AbstractHttpConfigurer<
 	public void configure(HttpSecurity builder) throws Exception {
 		var cookieAuthenticationFilter = new AuthenticationFilter(builder.getSharedObject(AuthenticationManager.class),
 				new TokenCookieAuthenticationConverter(this.tokenCookieStringDeserializer));
-
+		
 		cookieAuthenticationFilter.setSuccessHandler((request, response, authentication) -> {});
 		cookieAuthenticationFilter.setFailureHandler(new AuthenticationEntryPointFailureHandler(new Http403ForbiddenEntryPoint()));
 		

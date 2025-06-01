@@ -1,4 +1,4 @@
-package com.zaicev.task_tracker_backend.cookie;
+package com.zaicev.task_tracker_backend.authentication.cookie;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
