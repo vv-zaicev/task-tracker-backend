@@ -15,7 +15,7 @@ public class TokenAuthenticationUserDetailsService implements AuthenticationUser
 	@Override
 	public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken authenticationToken) throws UsernameNotFoundException {
 		if (authenticationToken.getPrincipal() instanceof Token token) {
-			User user = new User().builder().email(token.subject()).password("nopassword").roles(new HashSet<String>(token.authorites())).build();
+			User user = new User().builder().email(token.subject()).password("nopassword").roles(new HashSet<String>(token.authorites())).enabled(true).build();
 			return user;
 		}
 
