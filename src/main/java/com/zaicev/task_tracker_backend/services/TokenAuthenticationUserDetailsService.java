@@ -7,16 +7,30 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zaicev.task_tracker_backend.dto.UserResponseDTO;
 import com.zaicev.task_tracker_backend.models.Token;
 import com.zaicev.task_tracker_backend.models.User;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class TokenAuthenticationUserDetailsService implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
+	
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	@Override
 	public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken authenticationToken) throws UsernameNotFoundException {
 		if (authenticationToken.getPrincipal() instanceof Token token) {
-			User user = new User().builder().email(token.subject()).password("nopassword").roles(new HashSet<String>(token.authorites())).enabled(true).build();
-			return user;
+			try {
+				UserResponseDTO userResponseDTO = objectMapper.readValue(token.subject(), UserResponseDTO.class);
+				User user = new User().builder().email(userResponseDTO.email()).username(userResponseDTO.username()).password("nopassword").roles(new HashSet<String>(token.authorites())).enabled(true).build();
+				return user;
+			} catch (JsonProcessingException e) {
+				log.error(e.getMessage());
+			}
+			
 		}
 
 		throw new UsernameNotFoundException("Principal must be of type Token");
