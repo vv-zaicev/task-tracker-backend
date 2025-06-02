@@ -8,7 +8,9 @@ import java.util.function.Function;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
+import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
 import com.zaicev.task_tracker_backend.models.Token;
+import com.zaicev.task_tracker_backend.models.User;
 
 import lombok.Setter;
 
@@ -19,8 +21,9 @@ public class DefaultTokenCookieFactory implements Function<Authentication, Token
 
 	@Override
 	public Token apply(Authentication authentication) {
+		User user = (User) authentication.getPrincipal();
 		var now = Instant.now();
-		return new Token(UUID.randomUUID(), authentication.getName(), authentication.getAuthorities()
+		return new Token(UUID.randomUUID(), user.getEmail(), user.getAuthorities()
 										.stream()
 										.map(GrantedAuthority::getAuthority).toList(), now, now.plus(tokenTtl));
 	}	
