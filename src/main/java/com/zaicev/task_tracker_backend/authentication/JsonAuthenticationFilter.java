@@ -14,7 +14,9 @@ import com.zaicev.task_tracker_backend.dto.UserSignInRequest;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class JsonAuthenticationFilter extends AbstractAuthenticationProcessingFilter{
 	
 	private final ObjectMapper objectMapper = new ObjectMapper();
@@ -32,8 +34,7 @@ public class JsonAuthenticationFilter extends AbstractAuthenticationProcessingFi
 		try {
 			authentication = getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(userRequestDTO.email(), userRequestDTO.password()));
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
+			log.warn(e.getMessage());
 		}
 		return authentication;
 	}
