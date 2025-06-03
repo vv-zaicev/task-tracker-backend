@@ -15,6 +15,7 @@ import org.springframework.security.web.csrf.CsrfFilter;
 import com.zaicev.task_tracker_backend.models.Token;
 import com.zaicev.task_tracker_backend.services.TokenAuthenticationUserDetailsService;
 
+import jakarta.servlet.http.Cookie;
 import lombok.Setter;
 
 public class TokenCookieAuthenticationConfigurer extends AbstractHttpConfigurer<TokenCookieAuthenticationConfigurer, HttpSecurity> {
@@ -23,8 +24,14 @@ public class TokenCookieAuthenticationConfigurer extends AbstractHttpConfigurer<
 
 	@Override
 	public void init(HttpSecurity builder) throws Exception {
+		Cookie cookie = new Cookie("__Host-auth-token", null);
+		cookie.setPath("/");
+		cookie.setMaxAge(0);
+		cookie.setHttpOnly(true);
+		cookie.setSecure(true);
+		cookie.setDomain(null);
 		builder.logout(logout -> logout
-				.addLogoutHandler(new CookieClearingLogoutHandler("__Host-auth-token")));
+				.addLogoutHandler(new CookieClearingLogoutHandler(cookie)));
 	}
 
 	@Override
