@@ -18,6 +18,7 @@ import com.zaicev.task_tracker_backend.dto.UserResponseDTO;
 import com.zaicev.task_tracker_backend.dto.UserSignUpRequestDTO;
 import com.zaicev.task_tracker_backend.models.User;
 import com.zaicev.task_tracker_backend.repository.UserRepository;
+import com.zaicev.task_tracker_backend.services.SecurityService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,16 +28,11 @@ import jakarta.servlet.http.HttpServletResponse;
 public class SecurityController {
 
 	private final CsrfTokenRepository csrfTokenRepository = new CookieCsrfTokenRepository();
+	
+	private final SecurityService securityService;
 
-	private final UserDTOConverter userDTOConverter = new DefaultUserDTOConverter();
-
-	private final UserRepository userRepository;
-
-	private final PasswordEncoder passwordEncoder;
-
-	public SecurityController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
+	public SecurityController(SecurityService securityService) {
+		this.securityService = securityService;
 	}
 
 	@GetMapping("/csrf")
@@ -53,10 +49,6 @@ public class SecurityController {
 	@PostMapping("/sign-up")
 	@ResponseStatus(HttpStatus.CREATED)
 	public UserResponseDTO signup(@RequestBody UserSignUpRequestDTO userRequestDTO) {
-		User user = userDTOConverter.toEntity(userRequestDTO);
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		user.setEnabled(true);
-		userRepository.save(user);
-		return userDTOConverter.toDTO(user);
+		return securityService.signup(userRequestDTO);
 	}
 }
