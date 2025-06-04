@@ -29,6 +29,7 @@ public class TokenAuthenticationUserDetailsService implements AuthenticationUser
 				return user;
 			} catch (JsonProcessingException e) {
 				log.error(e.getMessage());
+				throw new UsernameNotFoundException("Invalid json token subject");
 			}
 			
 		}
