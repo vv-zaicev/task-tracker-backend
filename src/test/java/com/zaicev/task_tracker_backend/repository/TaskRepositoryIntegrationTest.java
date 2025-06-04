@@ -36,11 +36,13 @@ public class TaskRepositoryIntegrationTest {
 	void setUp() {
 		testUser = entityManager.persistFlushFind(User.builder()
 				.email("user@example.com")
+				.username("user1")
 				.password("password")
 				.build());
 
 		anotherUser = entityManager.persistFlushFind(User.builder()
 				.email("another@example.com")
+				.username("user2")
 				.password("somPass")
 				.build());
 	}
