@@ -13,9 +13,13 @@ import com.zaicev.task_tracker_backend.models.User;
 @RestController
 @RequestMapping("/users")
 public class UsersController {
-	
-	private final UserDTOConverter userDTOConverter = new DefaultUserDTOConverter();
-	
+
+	private final UserDTOConverter userDTOConverter;
+
+	public UsersController(UserDTOConverter userDTOConverter) {
+		this.userDTOConverter = userDTOConverter;
+	}
+
 	@GetMapping("/me")
 	public UserResponseDTO getMe(@AuthenticationPrincipal User user) {
 		return userDTOConverter.toDTO(user);
