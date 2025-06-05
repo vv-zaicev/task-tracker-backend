@@ -1,5 +1,6 @@
 package com.zaicev.task_tracker_backend.services;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -35,7 +36,8 @@ public class TaskService {
 
 	public TaskResponseDTO createTask(TaskRequestDTO taskRequestDTO, String userEmail) {
 		Task task = taskDTOConverter.toEntity(taskRequestDTO);
-
+		
+		task.setCreatedAt(LocalDateTime.now());
 		task.setUser(userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail)));
 		task = taskRepository.save(task);
 
