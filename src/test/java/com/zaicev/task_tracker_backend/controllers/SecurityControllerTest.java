@@ -1,5 +1,6 @@
 package com.zaicev.task_tracker_backend.controllers;
 
+import static org.hamcrest.Matchers.aMapWithSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -10,18 +11,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.hamcrest.Matchers.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.shaded.org.hamcrest.collection.IsIterableWithSize;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaicev.task_tracker_backend.config.TestSecurityConfig;
@@ -44,17 +43,14 @@ public class SecurityControllerTest {
 	private SecurityService securityService;
 
 	private final CookieCsrfTokenRepository csrfTokenRepository = new CookieCsrfTokenRepository();
-	
+
 	private CsrfToken existingToken;
 	private Cookie csrfCookie;
-	private HttpHeaders httpHeaders;
-	
+
 	@BeforeEach
 	void initialize() {
 		existingToken = csrfTokenRepository.generateToken(new MockHttpServletRequest());
 		csrfCookie = new Cookie("XSRF-TOKEN", existingToken.getToken());
-		httpHeaders = new HttpHeaders();
-		httpHeaders.add("X-XSRF-TOKEN", existingToken.getToken());
 	}
 
 	@Test
@@ -68,7 +64,6 @@ public class SecurityControllerTest {
 
 	@Test
 	void getCsrfToken_WithExistingToken_ShouldReturnExistingToken() throws Exception {
-		
 
 		mockMvc.perform(get("/auth/csrf").cookie(csrfCookie))
 				.andExpect(status().isOk())
@@ -83,7 +78,8 @@ public class SecurityControllerTest {
 
 		when(securityService.signup(any(UserSignUpRequestDTO.class))).thenReturn(responseDto);
 
-		mockMvc.perform(post("/auth/sign-up").cookie(csrfCookie).headers(httpHeaders)
+		mockMvc.perform(post("/auth/sign-up")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(requestDto)))
 				.andExpect(status().isCreated())
@@ -91,7 +87,7 @@ public class SecurityControllerTest {
 				.andExpect(jsonPath("$.email").value("user@example.com"))
 				.andExpect(jsonPath("$.username").value("username"));
 	}
-	
+
 	@Test
 	void signUp_WithoutCsrf_shouldReturnUnauthorized() throws Exception {
 		UserSignUpRequestDTO requestDto = new UserSignUpRequestDTO("username", "user@example.com", "password123");
