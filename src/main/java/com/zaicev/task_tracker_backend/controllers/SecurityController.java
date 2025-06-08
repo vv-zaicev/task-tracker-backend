@@ -1,7 +1,6 @@
 package com.zaicev.task_tracker_backend.controllers;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
@@ -12,12 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zaicev.task_tracker_backend.converters.DefaultUserDTOConverter;
-import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
 import com.zaicev.task_tracker_backend.dto.UserResponseDTO;
 import com.zaicev.task_tracker_backend.dto.UserSignUpRequestDTO;
-import com.zaicev.task_tracker_backend.models.User;
-import com.zaicev.task_tracker_backend.repository.UserRepository;
 import com.zaicev.task_tracker_backend.services.SecurityService;
 
 import jakarta.servlet.http.HttpServletRequest;

@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.zaicev.task_tracker_backend.converters.DefaultTaskDTOConverter;
 import com.zaicev.task_tracker_backend.converters.TaskDTOConverter;
 import com.zaicev.task_tracker_backend.dto.TaskRequestDTO;
 import com.zaicev.task_tracker_backend.dto.TaskResponseDTO;
@@ -26,7 +25,7 @@ public class TaskService {
 	private final UserRepository userRepository;
 
 	@Setter
-	private TaskDTOConverter taskDTOConverter = new DefaultTaskDTOConverter();
+	private TaskDTOConverter taskDTOConverter = new TaskDTOConverter() {};
 
 	public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
 		this.taskRepository = taskRepository;
@@ -36,7 +35,7 @@ public class TaskService {
 
 	public TaskResponseDTO createTask(TaskRequestDTO taskRequestDTO, String userEmail) {
 		Task task = taskDTOConverter.toEntity(taskRequestDTO);
-		
+
 		task.setCreatedAt(LocalDateTime.now());
 		task.setUser(userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail)));
 		task = taskRepository.save(task);

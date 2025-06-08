@@ -3,7 +3,6 @@ package com.zaicev.task_tracker_backend.services;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.zaicev.task_tracker_backend.converters.DefaultUserDTOConverter;
 import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
 import com.zaicev.task_tracker_backend.dto.UserResponseDTO;
 import com.zaicev.task_tracker_backend.dto.UserSignUpRequestDTO;
@@ -12,7 +11,7 @@ import com.zaicev.task_tracker_backend.repository.UserRepository;
 
 @Service
 public class SecurityService {
-	private final UserDTOConverter userDTOConverter = new DefaultUserDTOConverter();
+	private final UserDTOConverter userDTOConverter = new UserDTOConverter() {};
 
 	private final UserRepository userRepository;
 

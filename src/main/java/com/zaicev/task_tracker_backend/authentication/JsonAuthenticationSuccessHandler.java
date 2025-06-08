@@ -7,7 +7,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zaicev.task_tracker_backend.converters.DefaultUserDTOConverter;
 import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
 import com.zaicev.task_tracker_backend.models.User;
 
@@ -16,7 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class JsonAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-	private final UserDTOConverter userDTOConverter = new DefaultUserDTOConverter();
+	private final UserDTOConverter userDTOConverter = new UserDTOConverter() {};
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	@Override

@@ -11,7 +11,6 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zaicev.task_tracker_backend.converters.DefaultUserDTOConverter;
 import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
 import com.zaicev.task_tracker_backend.models.Token;
 import com.zaicev.task_tracker_backend.models.User;
@@ -23,7 +22,7 @@ public class DefaultTokenCookieFactory implements Function<Authentication, Token
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	
 	@Setter
-	private UserDTOConverter userDTOConverter = new DefaultUserDTOConverter();
+	private UserDTOConverter userDTOConverter = new UserDTOConverter() {};
 	
 	@Setter
 	private Duration tokenTtl = Duration.ofMinutes(10);
