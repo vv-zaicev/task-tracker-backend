@@ -8,6 +8,7 @@ public interface TaskDTOConverter {
 	
 	default public Task toEntity(TaskRequestDTO taskRequestDTO) {
 		Task task = new Task();
+		task.setId(taskRequestDTO.id());
 		task.setTitle(taskRequestDTO.title());
 		task.setDescription(taskRequestDTO.description());
 		task.setStatus(taskRequestDTO.status());
