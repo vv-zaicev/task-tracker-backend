@@ -18,6 +18,7 @@ import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieAuthenti
 import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieJweStringDeserializer;
 import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieJweStringSerializer;
 import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieSessionAuthenticationStrategy;
+import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
 
 @TestConfiguration
 public class TestSecurityConfig {
@@ -30,7 +31,7 @@ public class TestSecurityConfig {
 
 	@Bean
 	JsonAuthenticationConfigurer jsonAuthenticationConfigurer(TokenCookieSessionAuthenticationStrategy tokenCookieSessionAuthenticationStrategy) {
-		return new JsonAuthenticationConfigurer("/auth/sign-in", tokenCookieSessionAuthenticationStrategy);
+		return new JsonAuthenticationConfigurer("/auth/sign-in", tokenCookieSessionAuthenticationStrategy, new UserDTOConverter() {});
 	}
 
 	@Bean

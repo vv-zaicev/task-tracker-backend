@@ -27,14 +27,21 @@ import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieAuthenti
 import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieJweStringDeserializer;
 import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieJweStringSerializer;
 import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieSessionAuthenticationStrategy;
+import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
 
 @Configuration
 @EnableWebSecurity
 @ComponentScan("com.zaicev.task_tracker_backend.security")
 public class SecurityConfig {
 
-	@Value("${FRONTEND_URL}")
 	private String frontendURL;
+
+	private UserDTOConverter userDTOConverter;
+
+	public SecurityConfig(@Value("${FRONTEND_URL}") String frontendURL, UserDTOConverter userDTOConverter) {
+		this.frontendURL = frontendURL;
+		this.userDTOConverter = userDTOConverter;
+	}
 
 	@Bean
 	TokenCookieAuthenticationConfigurer tokenCookieAuthenticationConfigurer(@Value("${jwt.cookie-token-key}") String cookieTokenKey)
@@ -45,7 +52,7 @@ public class SecurityConfig {
 
 	@Bean
 	JsonAuthenticationConfigurer jsonAuthenticationConfigurer(TokenCookieSessionAuthenticationStrategy tokenCookieSessionAuthenticationStrategy) {
-		return new JsonAuthenticationConfigurer("/auth/sign-in", tokenCookieSessionAuthenticationStrategy);
+		return new JsonAuthenticationConfigurer("/auth/sign-in", tokenCookieSessionAuthenticationStrategy, userDTOConverter);
 	}
 
 	@Bean
