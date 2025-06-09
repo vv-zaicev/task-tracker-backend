@@ -15,8 +15,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class JsonAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-	private final UserDTOConverter userDTOConverter = new UserDTOConverter() {};
+	private UserDTOConverter userDTOConverter = new UserDTOConverter() {};
 	private final ObjectMapper objectMapper = new ObjectMapper();
+
+	public JsonAuthenticationSuccessHandler(UserDTOConverter userDTOConverter) {
+		super();
+		this.userDTOConverter = userDTOConverter;
+	}
+
+
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
