@@ -6,17 +6,21 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
+import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
+
 public class JsonAuthenticationConfigurer extends AbstractHttpConfigurer<JsonAuthenticationConfigurer, HttpSecurity> {
 
 	private String defaultFilterProcessesUrl;
-	
+
 	private final SessionAuthenticationStrategy sessionAuthenticationStrategy;
-	
-	
-	
-	public JsonAuthenticationConfigurer(String defaultFilterProcessesUrl, SessionAuthenticationStrategy sessionAuthenticationStrategy) {
+
+	private UserDTOConverter userDTOConverter;
+
+	public JsonAuthenticationConfigurer(String defaultFilterProcessesUrl, SessionAuthenticationStrategy sessionAuthenticationStrategy,
+			UserDTOConverter userDTOConverter) {
 		this.defaultFilterProcessesUrl = defaultFilterProcessesUrl;
 		this.sessionAuthenticationStrategy = sessionAuthenticationStrategy;
+		this.userDTOConverter = userDTOConverter;
 	}
 
 	@Override
@@ -27,7 +31,7 @@ public class JsonAuthenticationConfigurer extends AbstractHttpConfigurer<JsonAut
 	public void configure(HttpSecurity builder) throws Exception {
 		JsonAuthenticationFilter jsonAuthenticationFilter = new JsonAuthenticationFilter(defaultFilterProcessesUrl);
 		jsonAuthenticationFilter.setAuthenticationManager(builder.getSharedObject(AuthenticationManager.class));
-		jsonAuthenticationFilter.setAuthenticationSuccessHandler(new JsonAuthenticationSuccessHandler());
+		jsonAuthenticationFilter.setAuthenticationSuccessHandler(new JsonAuthenticationSuccessHandler(userDTOConverter));
 		jsonAuthenticationFilter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy);
 
 		builder.addFilterBefore(jsonAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -36,6 +40,5 @@ public class JsonAuthenticationConfigurer extends AbstractHttpConfigurer<JsonAut
 	public String getDefaultFilterProcessesUrl() {
 		return defaultFilterProcessesUrl;
 	}
-	
-	
+
 }
