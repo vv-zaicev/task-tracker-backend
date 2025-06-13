@@ -25,7 +25,7 @@ public class TokenAuthenticationUserDetailsService implements AuthenticationUser
 		if (authenticationToken.getPrincipal() instanceof Token token) {
 			try {
 				UserResponseDTO userResponseDTO = objectMapper.readValue(token.subject(), UserResponseDTO.class);
-				User user = new User().builder().email(userResponseDTO.email()).username(userResponseDTO.username()).password("nopassword").roles(new HashSet<String>(token.authorites())).enabled(true).build();
+				User user = User.builder().email(userResponseDTO.email()).username(userResponseDTO.username()).password("nopassword").roles(new HashSet<String>(token.authorites())).enabled(true).build();
 				return user;
 			} catch (JsonProcessingException e) {
 				log.error(e.getMessage());
