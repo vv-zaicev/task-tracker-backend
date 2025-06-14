@@ -28,6 +28,7 @@ import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieJweStrin
 import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieJweStringSerializer;
 import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieSessionAuthenticationStrategy;
 import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
+import com.zaicev.task_tracker_backend.services.TokenAuthenticationUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -44,20 +45,24 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	TokenCookieAuthenticationConfigurer tokenCookieAuthenticationConfigurer(@Value("${jwt.cookie-token-key}") String cookieTokenKey)
-			throws Exception {
-		return new TokenCookieAuthenticationConfigurer()
-				.tokenCookieStringDeserializer(new TokenCookieJweStringDeserializer(new DirectDecrypter(OctetSequenceKey.parse(cookieTokenKey))));
+	TokenCookieJweStringSerializer tokenCookieJweStringSerializer(@Value("${jwt.cookie-token-key}") String cookieTokenKey) throws Exception {
+		return new TokenCookieJweStringSerializer(new DirectEncrypter(OctetSequenceKey.parse(cookieTokenKey)));
+	}
+
+	@Bean
+	TokenCookieJweStringDeserializer tokenCookieJweStringDeserializer(@Value("${jwt.cookie-token-key}") String cookieTokenKey) throws Exception {
+		return new TokenCookieJweStringDeserializer(new DirectDecrypter(OctetSequenceKey.parse(cookieTokenKey)));
+	}
+
+	@Bean
+	TokenCookieAuthenticationConfigurer tokenCookieAuthenticationConfigurer(TokenCookieJweStringDeserializer tokenCookieJweStringDeserializer,
+			TokenAuthenticationUserDetailsService tokenAuthenticationUserDetailsService) {
+		return new TokenCookieAuthenticationConfigurer(tokenCookieJweStringDeserializer, tokenAuthenticationUserDetailsService);
 	}
 
 	@Bean
 	JsonAuthenticationConfigurer jsonAuthenticationConfigurer(TokenCookieSessionAuthenticationStrategy tokenCookieSessionAuthenticationStrategy) {
 		return new JsonAuthenticationConfigurer("/auth/sign-in", tokenCookieSessionAuthenticationStrategy, userDTOConverter);
-	}
-
-	@Bean
-	TokenCookieJweStringSerializer tokenCookieJweStringSerializer(@Value("${jwt.cookie-token-key}") String cookieTokenKey) throws Exception {
-		return new TokenCookieJweStringSerializer(new DirectEncrypter(OctetSequenceKey.parse(cookieTokenKey)));
 	}
 
 	@Bean

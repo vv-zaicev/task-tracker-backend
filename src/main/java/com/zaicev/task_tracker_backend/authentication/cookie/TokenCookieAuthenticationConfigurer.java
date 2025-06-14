@@ -20,7 +20,15 @@ import lombok.Setter;
 
 public class TokenCookieAuthenticationConfigurer extends AbstractHttpConfigurer<TokenCookieAuthenticationConfigurer, HttpSecurity> {
 
-	private Function<String, Token> tokenCookieStringDeserializer;
+	private final Function<String, Token> tokenCookieStringDeserializer;
+
+	private final TokenAuthenticationUserDetailsService tokenAuthenticationUserDetailsService;
+
+	public TokenCookieAuthenticationConfigurer(Function<String, Token> tokenCookieStringDeserializer,
+			TokenAuthenticationUserDetailsService tokenAuthenticationUserDetailsService) {
+		this.tokenCookieStringDeserializer = tokenCookieStringDeserializer;
+		this.tokenAuthenticationUserDetailsService = tokenAuthenticationUserDetailsService;
+	}
 
 	@Override
 	public void init(HttpSecurity builder) throws Exception {
@@ -38,21 +46,15 @@ public class TokenCookieAuthenticationConfigurer extends AbstractHttpConfigurer<
 	public void configure(HttpSecurity builder) throws Exception {
 		var cookieAuthenticationFilter = new AuthenticationFilter(builder.getSharedObject(AuthenticationManager.class),
 				new TokenCookieAuthenticationConverter(this.tokenCookieStringDeserializer));
-		
-		cookieAuthenticationFilter.setSuccessHandler((request, response, authentication) -> {});
+
+		cookieAuthenticationFilter.setSuccessHandler((request, response, authentication) -> {
+		});
 		cookieAuthenticationFilter.setFailureHandler(new AuthenticationEntryPointFailureHandler(new Http403ForbiddenEntryPoint()));
-		
+
 		var authenticationProvider = new PreAuthenticatedAuthenticationProvider();
-		authenticationProvider.setPreAuthenticatedUserDetailsService(new TokenAuthenticationUserDetailsService());
-		
+		authenticationProvider.setPreAuthenticatedUserDetailsService(tokenAuthenticationUserDetailsService);
+
 		builder.addFilterAfter(cookieAuthenticationFilter, CsrfFilter.class).authenticationProvider(authenticationProvider);
 	}
-
-	public TokenCookieAuthenticationConfigurer tokenCookieStringDeserializer(Function<String, Token> tokenCookieStringDeserializer) {
-		this.tokenCookieStringDeserializer = tokenCookieStringDeserializer;
-		return this;
-	}
-	
-	
 
 }
