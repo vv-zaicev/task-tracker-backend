@@ -11,23 +11,27 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.stereotype.Component;
 
 import com.zaicev.task_tracker_backend.models.Token;
 import com.zaicev.task_tracker_backend.services.TokenAuthenticationUserDetailsService;
 
 import jakarta.servlet.http.Cookie;
-import lombok.Setter;
 
+@Component
 public class TokenCookieAuthenticationConfigurer extends AbstractHttpConfigurer<TokenCookieAuthenticationConfigurer, HttpSecurity> {
 
 	private final Function<String, Token> tokenCookieStringDeserializer;
 
 	private final TokenAuthenticationUserDetailsService tokenAuthenticationUserDetailsService;
 
+	private final JwtBlacklistLogoutHandler jwtBlacklistLogoutHandler;
+
 	public TokenCookieAuthenticationConfigurer(Function<String, Token> tokenCookieStringDeserializer,
-			TokenAuthenticationUserDetailsService tokenAuthenticationUserDetailsService) {
+			TokenAuthenticationUserDetailsService tokenAuthenticationUserDetailsService, JwtBlacklistLogoutHandler jwtBlacklistLogoutHandler) {
 		this.tokenCookieStringDeserializer = tokenCookieStringDeserializer;
 		this.tokenAuthenticationUserDetailsService = tokenAuthenticationUserDetailsService;
+		this.jwtBlacklistLogoutHandler = jwtBlacklistLogoutHandler;
 	}
 
 	@Override
@@ -38,7 +42,9 @@ public class TokenCookieAuthenticationConfigurer extends AbstractHttpConfigurer<
 		cookie.setHttpOnly(true);
 		cookie.setSecure(true);
 		cookie.setDomain(null);
+
 		builder.logout(logout -> logout
+				.addLogoutHandler(jwtBlacklistLogoutHandler)
 				.addLogoutHandler(new CookieClearingLogoutHandler(cookie)));
 	}
 

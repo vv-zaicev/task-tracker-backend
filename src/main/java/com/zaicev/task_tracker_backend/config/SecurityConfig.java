@@ -28,7 +28,6 @@ import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieJweStrin
 import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieJweStringSerializer;
 import com.zaicev.task_tracker_backend.authentication.cookie.TokenCookieSessionAuthenticationStrategy;
 import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
-import com.zaicev.task_tracker_backend.services.TokenAuthenticationUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -55,21 +54,8 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	TokenCookieAuthenticationConfigurer tokenCookieAuthenticationConfigurer(TokenCookieJweStringDeserializer tokenCookieJweStringDeserializer,
-			TokenAuthenticationUserDetailsService tokenAuthenticationUserDetailsService) {
-		return new TokenCookieAuthenticationConfigurer(tokenCookieJweStringDeserializer, tokenAuthenticationUserDetailsService);
-	}
-
-	@Bean
 	JsonAuthenticationConfigurer jsonAuthenticationConfigurer(TokenCookieSessionAuthenticationStrategy tokenCookieSessionAuthenticationStrategy) {
 		return new JsonAuthenticationConfigurer("/auth/sign-in", tokenCookieSessionAuthenticationStrategy, userDTOConverter);
-	}
-
-	@Bean
-	TokenCookieSessionAuthenticationStrategy tokenCookieSessionAuthenticationStrategy(TokenCookieJweStringSerializer tokenCookieJweStringSerializer) {
-		TokenCookieSessionAuthenticationStrategy tokenCookieSessionAuthenticationStrategy = new TokenCookieSessionAuthenticationStrategy();
-		tokenCookieSessionAuthenticationStrategy.setTokenStringSerializer(tokenCookieJweStringSerializer);
-		return tokenCookieSessionAuthenticationStrategy;
 	}
 
 	@Bean
