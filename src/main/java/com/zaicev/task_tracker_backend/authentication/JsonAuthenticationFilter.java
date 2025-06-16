@@ -30,12 +30,8 @@ public class JsonAuthenticationFilter extends AbstractAuthenticationProcessingFi
 			throws AuthenticationException, IOException, ServletException {
 		UserSignInRequest userRequestDTO = objectMapper.readValue(request.getInputStream(), UserSignInRequest.class);
 		
-		Authentication authentication = null;
-		try {
-			authentication = getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(userRequestDTO.email(), userRequestDTO.password()));
-		} catch (Exception e) {
-			log.warn(e.getMessage());
-		}
+		Authentication authentication = getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(userRequestDTO.email(), userRequestDTO.password()));
+		
 		return authentication;
 	}
 	
