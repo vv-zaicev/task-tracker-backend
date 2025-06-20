@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.zaicev.task_tracker_backend.dto.TaskRequestDTO;
 import com.zaicev.task_tracker_backend.dto.TaskResponseDTO;
+import com.zaicev.task_tracker_backend.exceptions.UserNotFoundException;
 import com.zaicev.task_tracker_backend.models.Task;
 import com.zaicev.task_tracker_backend.models.TaskStatus;
 import com.zaicev.task_tracker_backend.models.User;
@@ -72,7 +73,7 @@ public class TaskServiceTest {
 	}
 
 	@Test
-	void createTask_WithValidData_ReturnsTaskDTO() {
+	void createTask_WithValidData_ReturnsTaskDTO() throws Exception{
 		TaskRequestDTO requestDTO = new TaskRequestDTO(null, validTitle, validDescription, TaskStatus.IN_PROGRESS);
 		when(userRepository.findByEmail(validEmail)).thenReturn(Optional.of(testUser));
 		when(taskRepository.save(any(Task.class))).thenReturn(testTask);
@@ -83,9 +84,17 @@ public class TaskServiceTest {
 		verify(taskRepository).save(any(Task.class));
 		assertEquals(validTaskId, result.id());
 	}
+	
+	@Test
+	void createTask_WithoutUser_ThrowsUserNotFoundException(){
+		when(userRepository.findByEmail(invalidEmail)).thenReturn(Optional.empty());
+		TaskRequestDTO requestDTO = new TaskRequestDTO(null, validTitle, validDescription, TaskStatus.IN_PROGRESS);
+		
+		assertThrows(UserNotFoundException.class, () -> taskService.createTask(requestDTO, invalidEmail));
+	}
 
 	@Test
-	void updateTask_WithValidData_UpdatesTask() {
+	void updateTask_WithValidData_UpdatesTask() throws Exception{
 		TaskRequestDTO requestDTO = new TaskRequestDTO(validTaskId, validTitle, validDescription, TaskStatus.IN_PROGRESS);
 		when(userRepository.findByEmail(validEmail)).thenReturn(Optional.of(testUser));
 		when(taskRepository.save(any(Task.class))).thenReturn(testTask);
@@ -98,6 +107,14 @@ public class TaskServiceTest {
 		assertEquals(validTitle, result.title());
 		assertEquals(validDescription, result.description());
 	}
+	
+	@Test
+	void updateTask_WithoutUser_ThrowsUserNotFoundException(){
+		when(userRepository.findByEmail(invalidEmail)).thenReturn(Optional.empty());
+		TaskRequestDTO requestDTO = new TaskRequestDTO(null, validTitle, validDescription, TaskStatus.IN_PROGRESS);
+		
+		assertThrows(UserNotFoundException.class, () -> taskService.updateTask(requestDTO, invalidEmail));
+	}
 
 	@Test
 	void deleteTask_WithValidId_DeletesTask() {
@@ -108,7 +125,7 @@ public class TaskServiceTest {
 	}
 
 	@Test
-	void getUserTasks_WithValidUser_ReturnsTaskList() {
+	void getUserTasks_WithValidUser_ReturnsTaskList() throws Exception{
 		List<Task> tasks = Collections.singletonList(testTask);
 		when(userRepository.findByEmail(validEmail)).thenReturn(Optional.of(testUser));
 		when(taskRepository.findByUser(testUser)).thenReturn(tasks);
@@ -119,6 +136,13 @@ public class TaskServiceTest {
 		assertEquals(validTaskId, result.get(0).id());
 		assertEquals(validTitle, result.get(0).title());
 		assertEquals(validDescription, result.get(0).description());
+	}
+	
+	@Test
+	void getUserTasks_WithoutUser_ThrowsUserNotFoundException(){
+		when(userRepository.findByEmail(invalidEmail)).thenReturn(Optional.empty());
+		
+		assertThrows(UserNotFoundException.class, () -> taskService.getUserTasks(invalidEmail));
 	}
 
 	@Test
@@ -141,7 +165,7 @@ public class TaskServiceTest {
 	}
 
 	@Test
-	void checkUserRights_WithValidUserAndId_ReturnsTrue() {
+	void checkUserRights_WithValidUserAndId_ReturnsTrue() throws Exception{
 		when(userRepository.findByEmail(validEmail)).thenReturn(Optional.of(testUser));
 		when(taskRepository.findById(validTaskId)).thenReturn(Optional.of(testTask));
 
@@ -151,13 +175,21 @@ public class TaskServiceTest {
 	}
 
 	@Test
-	void checkUserRights_WithInvalidUser_ReturnsFalse() {
+	void checkUserRights_WithInvalidUser_ReturnsFalse() throws Exception{
 		when(userRepository.findByEmail(invalidEmail)).thenReturn(Optional.of(invalidUser));
 		when(taskRepository.findById(validTaskId)).thenReturn(Optional.of(testTask));
 
 		boolean result = taskService.checkUserRights(validTaskId, invalidEmail);
 
 		assertEquals(false, result);
+	}
+	
+	@Test
+	void checkUserRights_WithoutUser_ThrowsUserNotFoundException(){
+		when(userRepository.findByEmail(invalidEmail)).thenReturn(Optional.empty());
+		when(taskRepository.findById(validTaskId)).thenReturn(Optional.of(testTask));
+		
+		assertThrows(UserNotFoundException.class, () -> taskService.checkUserRights(validTaskId, invalidEmail));
 	}
 
 	@Test

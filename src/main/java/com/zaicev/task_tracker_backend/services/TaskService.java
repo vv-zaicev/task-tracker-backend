@@ -33,7 +33,7 @@ public class TaskService {
 
 	}
 
-	public TaskResponseDTO createTask(TaskRequestDTO taskRequestDTO, String userEmail) {
+	public TaskResponseDTO createTask(TaskRequestDTO taskRequestDTO, String userEmail) throws UserNotFoundException{
 		Task task = taskDTOConverter.toEntity(taskRequestDTO);
 
 		task.setCreatedAt(LocalDateTime.now());
@@ -43,7 +43,7 @@ public class TaskService {
 		return taskDTOConverter.toDTO(task);
 	}
 
-	public TaskResponseDTO updateTask(TaskRequestDTO taskRequestDTO, String userEmail) {
+	public TaskResponseDTO updateTask(TaskRequestDTO taskRequestDTO, String userEmail) throws UserNotFoundException{
 		Task task = taskDTOConverter.toEntity(taskRequestDTO);
 		User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail));
 
@@ -57,7 +57,7 @@ public class TaskService {
 		taskRepository.deleteById(taskId);
 	}
 
-	public List<TaskResponseDTO> getUserTasks(String userEmail) {
+	public List<TaskResponseDTO> getUserTasks(String userEmail) throws UserNotFoundException{
 		User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail));
 		List<Task> tasks = taskRepository.findByUser(user);
 
@@ -73,7 +73,7 @@ public class TaskService {
 		return taskDTOConverter.toDTO(task);
 	}
 
-	public boolean checkUserRights(Long taskId, String userEmail) {
+	public boolean checkUserRights(Long taskId, String userEmail) throws UserNotFoundException{
 		Task task = taskRepository.findById(taskId)
 				.orElseThrow(() -> new EntityNotFoundException(String.format("Entity with %d id not found", taskId)));
 		User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail));

@@ -42,7 +42,7 @@ public class JsonAuthenticationFilterTest {
 
 	private ObjectMapper objectMapper = new ObjectMapper();
 
-	@InjectMocks
+
 	private static JsonAuthenticationFilter filter;
 
 	
@@ -51,6 +51,8 @@ public class JsonAuthenticationFilterTest {
 	
 	@BeforeEach
 	void setUp() {
+		filter = new JsonAuthenticationFilter(LOGIN_URL);
+		filter.setAuthenticationManager(authenticationManager);
 		request  = new MockHttpServletRequest();
 		response = new MockHttpServletResponse();
 	}
