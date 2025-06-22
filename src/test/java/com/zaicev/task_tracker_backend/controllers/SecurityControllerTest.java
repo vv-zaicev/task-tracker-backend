@@ -2,6 +2,8 @@ package com.zaicev.task_tracker_backend.controllers;
 
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
@@ -26,6 +29,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaicev.task_tracker_backend.config.TestSecurityConfig;
 import com.zaicev.task_tracker_backend.dto.UserResponseDTO;
 import com.zaicev.task_tracker_backend.dto.UserSignUpRequestDTO;
+import com.zaicev.task_tracker_backend.dto.VerifyUserDTO;
+import com.zaicev.task_tracker_backend.exceptions.AccountIsAlredyVerified;
+import com.zaicev.task_tracker_backend.exceptions.InvalidVerificationCode;
+import com.zaicev.task_tracker_backend.exceptions.UserNotFoundException;
 import com.zaicev.task_tracker_backend.services.SecurityService;
 
 import jakarta.servlet.http.Cookie;
@@ -96,5 +103,114 @@ public class SecurityControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(requestDto)))
 				.andExpect(status().isForbidden());
+	}
+	
+	@Test
+	void verify_WithoutCsrf_shouldReturnUnauthorized() throws Exception {
+		VerifyUserDTO verifyUserDTO = new VerifyUserDTO("user@example.com", "000000");
+
+		mockMvc.perform(post("/auth/verify")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(verifyUserDTO)))
+				.andExpect(status().isForbidden());
+	}
+	
+	@Test
+	void verify_CorrectData_shouldReturnOK() throws Exception {
+		VerifyUserDTO verifyUserDTO = new VerifyUserDTO("user@example.com", "000000");
+
+		mockMvc.perform(post("/auth/verify")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(verifyUserDTO)))
+				.andExpect(status().isOk());
+		
+		verify(securityService).verifyUser(verifyUserDTO);
+	}
+	
+	@Test
+	void verify_IncorrectCode_shouldReturnBadRequest() throws Exception {
+		VerifyUserDTO verifyUserDTO = new VerifyUserDTO("user@example.com", "000000");
+		Exception invalidVerificationCode = new InvalidVerificationCode("invalid code");
+		doThrow(invalidVerificationCode).when(securityService).verifyUser(verifyUserDTO);
+		
+		mockMvc.perform(post("/auth/verify")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(verifyUserDTO)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+				.andExpect(jsonPath("$.message").value(invalidVerificationCode.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+		
+	}
+	
+	@Test
+	void verify_IncorrectUser_shouldReturnNotFound() throws Exception {
+		VerifyUserDTO verifyUserDTO = new VerifyUserDTO("user@example.com", "000000");
+		Exception userNotFoundException = new UserNotFoundException(verifyUserDTO.email());
+		doThrow(userNotFoundException).when(securityService).verifyUser(verifyUserDTO);
+		
+		mockMvc.perform(post("/auth/verify")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(verifyUserDTO)))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+				.andExpect(jsonPath("$.message").value(userNotFoundException.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+		
+	}
+	
+	
+	@Test
+	void resend_WithoutCsrf_shouldReturnUnauthorized() throws Exception {
+
+		mockMvc.perform(post("/auth/resend")
+				.param("email", "user@example.com"))
+				.andExpect(status().isForbidden());
+	}
+	
+	@Test
+	void resend_CorrectData_shouldReturnOK() throws Exception {
+
+		mockMvc.perform(post("/auth/resend")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.param("email", "user@example.com"))
+				.andExpect(status().isOk());
+		
+		verify(securityService).resendVerificationCode("user@example.com");
+	}
+	
+	@Test
+	void resend_AccountIsAlredyVerified_shouldReturnBadRequest() throws Exception {
+		String email = "user@example.com";
+		Exception accountIsAlredyVerified = new AccountIsAlredyVerified(email);
+		doThrow(accountIsAlredyVerified).when(securityService).resendVerificationCode(email);;
+		
+		mockMvc.perform(post("/auth/resend")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.param("email", "user@example.com"))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+				.andExpect(jsonPath("$.message").value(accountIsAlredyVerified.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+		
+	}
+	
+	@Test
+	void resend_IncorrectUser_shouldReturnNotFound() throws Exception {
+		String email = "user@example.com";
+		Exception userNotFoundException = new UserNotFoundException(email);
+		doThrow(userNotFoundException).when(securityService).resendVerificationCode(email);;
+		
+		mockMvc.perform(post("/auth/resend")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.param("email", "user@example.com"))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+				.andExpect(jsonPath("$.message").value(userNotFoundException.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+		
 	}
 }
