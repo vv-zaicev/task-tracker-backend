@@ -2,6 +2,7 @@ package com.zaicev.task_tracker_backend.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,9 +34,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaicev.task_tracker_backend.config.TestSecurityConfig;
 import com.zaicev.task_tracker_backend.dto.TaskRequestDTO;
 import com.zaicev.task_tracker_backend.dto.TaskResponseDTO;
+import com.zaicev.task_tracker_backend.exceptions.UserNotFoundException;
 import com.zaicev.task_tracker_backend.models.TaskStatus;
 import com.zaicev.task_tracker_backend.models.User;
 import com.zaicev.task_tracker_backend.services.TaskService;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @WebMvcTest(TaskController.class)
 @Import(TestSecurityConfig.class)
@@ -79,6 +84,19 @@ public class TaskControllerTest {
 	}
 
 	@Test
+	void getTasks_ThrowUserNotFoundException_ShouldReturnNotFount() throws Exception {
+		Exception exception = new UserNotFoundException(testUser.getEmail());
+		when(taskService.getUserTasks(testUser.getEmail())).thenThrow(exception);
+
+		mockMvc.perform(get("/tasks").with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+				.andExpect(jsonPath("$.message").value(exception.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+
+	}
+
+	@Test
 	void getTasks_WithoutAuthentication_ShouldReturnUnauthorized() throws Exception {
 		mockMvc.perform(get("/tasks"))
 				.andExpect(status().isUnauthorized());
@@ -98,6 +116,37 @@ public class TaskControllerTest {
 				.andExpect(jsonPath("$.description").value("description"))
 				.andExpect(jsonPath("$.createdAt").value(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
 				.andExpect(jsonPath("$.status").value(TaskStatus.IN_PROGRESS.toString()));
+	}
+
+	@Test
+	void complete_ThrowUserNotFoundException_ShouldReturnNotFount() throws Exception {
+		Exception exception = new UserNotFoundException(testUser.getEmail());
+		when(taskService.checkUserRights(1L, "test@example.com")).thenThrow(exception);
+
+		mockMvc.perform(post("/tasks/complete/1")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+				.andExpect(jsonPath("$.message").value(exception.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+
+	}
+
+	@Test
+	void complete_ThrowEntityNotFoundException_ShouldReturnNotFount() throws Exception {
+		Exception exception = new EntityNotFoundException("Entity not found");
+		when(taskService.checkUserRights(1L, "test@example.com")).thenReturn(true);
+		when(taskService.completeTask(1L)).thenThrow(exception);
+
+		mockMvc.perform(post("/tasks/complete/1")
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+				.andExpect(jsonPath("$.message").value(exception.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+
 	}
 
 	@Test
@@ -130,6 +179,39 @@ public class TaskControllerTest {
 	}
 
 	@Test
+	void createTask_ThrowUserNotFoundException_ShouldReturnNotFount() throws Exception {
+		Exception exception = new UserNotFoundException(testUser.getEmail());
+		when(taskService.createTask(any(), eq(testUser.getEmail()))).thenThrow(exception);
+
+		mockMvc.perform(post("/tasks")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(requestDTO))
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+				.andExpect(jsonPath("$.message").value(exception.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+
+	}
+
+	@Test
+	void createTask_ThrowEntityNotFoundException_ShouldReturnNotFount() throws Exception {
+		Exception exception = new EntityNotFoundException("Entity not found");
+		when(taskService.createTask(any(), eq(testUser.getEmail()))).thenThrow(exception);
+
+		mockMvc.perform(post("/tasks")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(requestDTO))
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+				.andExpect(jsonPath("$.message").value(exception.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+	}
+
+	@Test
 	void createTask_WithoutCsrf_ShouldReturnForbidden() throws Exception {
 		mockMvc.perform(post("/tasks"))
 				.andExpect(status().isForbidden());
@@ -157,6 +239,41 @@ public class TaskControllerTest {
 				.andExpect(jsonPath("$.description").value("description"))
 				.andExpect(jsonPath("$.createdAt").value(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
 				.andExpect(jsonPath("$.status").value(TaskStatus.IN_PROGRESS.toString()));
+	}
+
+	@Test
+	void updateTask_ThrowUserNotFoundException_ShouldReturnNotFount() throws Exception {
+		Exception exception = new UserNotFoundException(testUser.getEmail());
+		when(taskService.checkUserRights(1L, "test@example.com")).thenThrow(exception);
+
+		mockMvc.perform(put("/tasks")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(requestDTO))
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+				.andExpect(jsonPath("$.message").value(exception.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+
+	}
+
+	@Test
+	void updateTask_ThrowEntityNotFoundException_ShouldReturnNotFount() throws Exception {
+		Exception exception = new EntityNotFoundException("Entity not found");
+		when(taskService.checkUserRights(1L, "test@example.com")).thenReturn(true);
+		when(taskService.updateTask(any(), eq(testUser.getEmail()))).thenThrow(exception);
+
+		mockMvc.perform(put("/tasks")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(requestDTO))
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+				.andExpect(jsonPath("$.message").value(exception.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+
 	}
 
 	@Test
@@ -192,6 +309,41 @@ public class TaskControllerTest {
 				.with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
 				.andExpect(status().isNoContent());
 		verify(taskService).deleteTask(1L);
+	}
+
+	@Test
+	void deleteTask_ThrowUserNotFoundException_ShouldReturnNotFount() throws Exception {
+		Exception exception = new UserNotFoundException(testUser.getEmail());
+		when(taskService.checkUserRights(1L, "test@example.com")).thenThrow(exception);
+
+		mockMvc.perform(delete("/tasks/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(requestDTO))
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+				.andExpect(jsonPath("$.message").value(exception.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+
+	}
+
+	@Test
+	void deleteTask_ThrowEntityNotFoundException_ShouldReturnNotFount() throws Exception {
+		Exception exception = new EntityNotFoundException("Entity not found");
+		when(taskService.checkUserRights(1L, "test@example.com")).thenReturn(true);
+		doThrow(exception).when(taskService).deleteTask(1L);
+
+		mockMvc.perform(delete("/tasks/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(requestDTO))
+				.with(SecurityMockMvcRequestPostProcessors.csrf())
+				.with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
+				.andExpect(status().isNotFound())
+				.andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
+				.andExpect(jsonPath("$.message").value(exception.getMessage()))
+				.andExpect(jsonPath("$.timestamp").exists());
+
 	}
 
 	@Test
