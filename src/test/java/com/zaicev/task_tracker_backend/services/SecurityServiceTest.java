@@ -60,7 +60,7 @@ public class SecurityServiceTest {
 		when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
 		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
 
-		UserResponseDTO response = securityService.signup(request);
+		securityService.signup(request);
 
 		verify(userRepository).save(userCaptor.capture());
 		verify(kafkaProducer).sendMessage(any(EmailVerificationMessage.class));

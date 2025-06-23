@@ -21,7 +21,6 @@ import org.springframework.security.core.Authentication;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zaicev.task_tracker_backend.authentication.cookie.DefaultTokenCookieFactory;
 import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
 import com.zaicev.task_tracker_backend.dto.UserResponseDTO;
 import com.zaicev.task_tracker_backend.models.Token;
@@ -70,15 +69,15 @@ public class DefaultTokenCookieFactoryTest {
 		assertTrue(token.createdAt().isAfter(testStart) && token.createdAt().isBefore(testEnd));
 		assertEquals(token.createdAt().plus(Duration.ofMinutes(15)), token.expiresAt());
 	}
-	
+
 	@Test
 	void apply_WithoutTokenTtl_ShouldExpiresAtIsAfterThanCreatedAt() {
 		UserResponseDTO userDTO = new UserResponseDTO("testUser", "test@example.com");
 		when(authentication.getPrincipal()).thenReturn(testUser);
 		when(userDTOConverter.toDTO(testUser)).thenReturn(userDTO);
-		
+
 		Token token = factory.apply(authentication);
-		
+
 		assertTrue(token.expiresAt().isAfter(token.createdAt()));
 	}
 }

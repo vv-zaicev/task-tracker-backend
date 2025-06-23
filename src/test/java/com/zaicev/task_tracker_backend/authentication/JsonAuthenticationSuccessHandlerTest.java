@@ -3,7 +3,6 @@ package com.zaicev.task_tracker_backend.authentication;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-import java.util.Collection;
 import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +31,7 @@ public class JsonAuthenticationSuccessHandlerTest {
 	private MockHttpServletResponse response;
 
 	private Authentication authentication;
-	
+
 	private User user;
 
 	@Mock
@@ -53,7 +52,7 @@ public class JsonAuthenticationSuccessHandlerTest {
 
 	@Test
 	void onAuthenticationSuccess_ShouldWriteCorrectJson() throws Exception {
-		
+
 		UserResponseDTO expectedDTO = new UserResponseDTO("testUser", "test@example.com");
 		String expectedJson = testObjectMapper.writeValueAsString(expectedDTO);
 

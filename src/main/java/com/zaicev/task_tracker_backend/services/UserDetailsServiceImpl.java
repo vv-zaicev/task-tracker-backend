@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.zaicev.task_tracker_backend.exceptions.UserNotFoundException;
 import com.zaicev.task_tracker_backend.models.User;
 import com.zaicev.task_tracker_backend.repository.UserRepository;
 
@@ -18,7 +17,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("user with %s email is not found".formatted(username)));
+		User user = userRepository.findByEmail(username)
+				.orElseThrow(() -> new UsernameNotFoundException("user with %s email is not found".formatted(username)));
 		return user;
 	}
 

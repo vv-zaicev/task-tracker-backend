@@ -12,11 +12,9 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -24,7 +22,6 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,24 +39,22 @@ public class JsonAuthenticationFilterTest {
 
 	private ObjectMapper objectMapper = new ObjectMapper();
 
-
 	private static JsonAuthenticationFilter filter;
 
-	
 	private MockHttpServletResponse response;
 	private MockHttpServletRequest request;
-	
+
 	@BeforeEach
 	void setUp() {
 		filter = new JsonAuthenticationFilter(LOGIN_URL);
 		filter.setAuthenticationManager(authenticationManager);
-		request  = new MockHttpServletRequest();
+		request = new MockHttpServletRequest();
 		response = new MockHttpServletResponse();
 	}
 
 	@Test
 	void attemptAuthentication_ValidCredentials_ReturnsAuthentication() throws Exception {
-		
+
 		request.setContent(VALID_JSON.getBytes());
 		when(authenticationManager.authenticate(any())).thenReturn(authenticationResult);
 

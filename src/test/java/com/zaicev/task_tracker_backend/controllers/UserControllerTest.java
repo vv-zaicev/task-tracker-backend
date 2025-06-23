@@ -1,7 +1,6 @@
 package com.zaicev.task_tracker_backend.controllers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,15 +30,14 @@ public class UserControllerTest {
 
 	@Test
 	void getMe_ShouldReturnUserData() throws Exception {
-        User testUser = new User();
-        testUser.setUsername("testUser");
-        testUser.setEmail("test@example.com");
+		User testUser = new User();
+		testUser.setUsername("testUser");
+		testUser.setEmail("test@example.com");
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-        	testUser,
-            null,
-            Collections.emptyList()
-        );
+		Authentication authentication = new UsernamePasswordAuthenticationToken(
+				testUser,
+				null,
+				Collections.emptyList());
 
 		Mockito.when(userDTOConverter.toDTO(testUser))
 				.thenReturn(new UserResponseDTO("testUser", "test@example.com"));
@@ -49,10 +47,10 @@ public class UserControllerTest {
 				.andExpect(jsonPath("$.username").value("testUser"))
 				.andExpect(jsonPath("$.email").value("test@example.com"));
 	}
-	
+
 	@Test
-    void getMe_Unauthorized_ShouldReturn401() throws Exception {
-        mockMvc.perform(get("/users/me"))
-                .andExpect(status().isUnauthorized());
-    }
+	void getMe_Unauthorized_ShouldReturn401() throws Exception {
+		mockMvc.perform(get("/users/me"))
+				.andExpect(status().isUnauthorized());
+	}
 }
