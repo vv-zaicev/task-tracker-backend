@@ -6,10 +6,13 @@ import org.springframework.stereotype.Service;
 
 import com.zaicev.task_tracker_backend.dto.EmailVerificationMessage;
 
+import lombok.Setter;
+
 @Service
 public class KafkaProducer {
 	private final KafkaTemplate<String, EmailVerificationMessage> kafkaTemplate;
 	
+	@Setter
 	@Value("${VEREFICATION_TOPIC}")
 	private String topic;
 
