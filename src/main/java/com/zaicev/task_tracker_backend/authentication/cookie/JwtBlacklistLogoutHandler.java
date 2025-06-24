@@ -17,9 +17,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class JwtBlacklistLogoutHandler implements LogoutHandler {
-	
+
 	private final JwtBlacklistService jwtBlacklistService;
-	
+
 	private final Function<String, Token> tokenCookieStringDeserializer;
 
 	public JwtBlacklistLogoutHandler(JwtBlacklistService jwtBlacklistService, Function<String, Token> tokenCookieStringDeserializer) {
@@ -28,11 +28,13 @@ public class JwtBlacklistLogoutHandler implements LogoutHandler {
 	}
 
 	@Override
-	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {	
-		Optional<Cookie> jwtCookie =  Stream.of(request.getCookies()).filter(cookie -> cookie.getName().equals("__Host-auth-token")).findFirst();
-		if (jwtCookie.isPresent()) {
-			Token token = tokenCookieStringDeserializer.apply(jwtCookie.get().getValue());
-			jwtBlacklistService.addTokenToBlacklist(token);
+	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+		if (request.getCookies() != null) {
+			Optional<Cookie> jwtCookie = Stream.of(request.getCookies()).filter(cookie -> cookie.getName().equals("__Host-auth-token")).findFirst();
+			if (jwtCookie.isPresent()) {
+				Token token = tokenCookieStringDeserializer.apply(jwtCookie.get().getValue());
+				jwtBlacklistService.addTokenToBlacklist(token);
+			}
 		}
 	}
 
