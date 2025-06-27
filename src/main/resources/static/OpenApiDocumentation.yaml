@@ -1,0 +1,5 @@
+openapi: 3.1.3
+info:
+   title: task-tracker-backend
+   description: Backend сервис проекта task-tracker
+   version: 1.0.0
