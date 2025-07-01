@@ -3,3 +3,107 @@ info:
    title: task-tracker-backend
    description: Backend сервис проекта task-tracker
    version: 1.0.0
+servers:
+  - url: localhost:8443/api
+    description: Основной сервер
+paths:
+  /users/me:
+   get:
+      summary: возвращает информацию о текущем пользователе
+      tags:
+        - Users
+components:
+  schemas:
+    TaskResponse:
+      type: object
+      properties:
+         id:
+            type: integer
+            example: 3
+         title:
+            type: string
+            example: taskTitle
+         description:
+            type: string
+            example: taskDescription
+         createdAt:
+            type: string
+            format: date-time
+            example: "2025-07-01 23:16:52"
+            description: таймзона москвы
+         status:
+            type: string
+            enum: [IN_PROGRESS, COMPLETE]
+            example: COMPLETE
+    TaskRequest:
+      type: object
+      properties:
+         id:
+            type: integer
+            example: 3
+         title:
+            type: string
+            example: taskTitle
+         description:
+            type: string
+            example: taskDescription
+         status:
+            type: string
+            enum: [IN_PROGRESS, COMPLETE]
+            example: COMPLETE
+    ErrorResponse:
+      type: object
+      properties:
+         status:
+            type: integer
+            example: 404
+         message:
+            type: string
+            example: not found
+         timestamp:
+            type: string
+            format: date-time
+            example: "2025-07-01T23:16:52.3769316"
+    UserResponse:
+      type: object
+      properties:
+         username:
+            type: string
+            example: admin
+         email: 
+            type: string
+            example: admin@example.com
+    UserSignInRequest:
+      type: object
+      properties:
+         email: 
+            type: string
+            example: admin@example.com
+         password:
+            type: string
+            example: admin
+    UserSignUpRequest:
+      type: object
+      properties:
+         username:
+            type: string
+            example: admin
+         email: 
+            type: string
+            example: admin@example.com
+         password:
+            type: string
+            example: admin
+    VerifyUserDTO:
+      type: object
+      properties:
+         email:
+            type: string
+            example: admin@example.com
+         code:
+            type: string
+            example: 123456
+            description: код длиною в шесть символов
+  responses:
+    Unauthorized:
+      description: пользователь не авторизован
