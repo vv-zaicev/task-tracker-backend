@@ -5,13 +5,133 @@ info:
    version: 1.0.0
 servers:
   - url: localhost:8443/api
-    description: Основной сервер
+    description: Основной сервер.
 paths:
-  /users/me:
-   get:
-      summary: возвращает информацию о текущем пользователе
+   /users/me:
+    get:
+      summary: Возвращает информацию о текущем пользователе.
       tags:
         - Users
+      responses:
+        "200":
+          description: Получен текущий пользователь.
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/UserResponse"
+   /auth/csrf:
+      get:
+         summary: Получение csrf токена.
+         tags:
+           - Auth
+         responses:
+           "200":
+               description: Получен токен.
+               content:
+                 application/json:
+                  schema: 
+                     type: object
+                     properties:
+                        headerName:
+                           type: string
+                           example: X-XSRF-TOKEN
+                        parameterName:
+                           type: string
+                           example: _csrf
+                        token:
+                           type: string
+                           example: 3137aba2-47d4-4879-b458-ee054c9da742
+               headers:
+                 Set-Cookie:
+                  schema: 
+                     type: string
+                     example: XSRF-TOKEN=3137aba2-47d4-4879-b458-ee054c9da742; Path=/api; Secure; HttpOnly;
+
+   /auth/sign-up:
+      post:
+         summary: Регистрация нового пользователя.
+         requestBody:
+            content:
+              application/json:
+               schema: 
+                  $ref: "#/components/schemas/UserSignUpRequest"
+         tags:
+           - Auth
+         responses:
+            "201":
+               description: Пользователь создан.
+               content:
+                  application/json:
+                     schema: 
+                        $ref: "#/components/schemas/UserResponse"
+            "403": 
+               $ref: "#/components/responses/Forbidden"
+   /auth/sign-in:
+      post:
+         summary: Авторизация пользователя.
+         description: Устанавливается JWT кука.
+         tags:
+           - Auth
+         requestBody:
+            content:
+              application/json:
+               schema: 
+                  $ref: "#/components/schemas/UserSignInRequest"
+         responses:
+           "200":
+               description: пользователь авторизован
+               content:
+                  application/json:
+                     schema: 
+                        $ref: "#/components/schemas/UserResponse"
+               headers:
+                 Set-Cookie:
+                  schema: 
+                     type: string
+                     example: __Host-auth-token=jwtToken; Path=/; Secure; HttpOnly; Expires=Wed, 02 Jul 2025 18:03:48 GMT;
+           "401": 
+               $ref: "#/components/responses/Unauthorized"
+   /auth/verify:
+      post: 
+         summary: Подтверждение аккаунта.
+         tags:
+           - Auth
+         requestBody:
+            content:
+              application/json:
+               schema: 
+                  $ref: "#/components/schemas/VerifyUserDTO"
+         responses:
+           "200":
+               description: "Аккаунт подтвержден."
+           "400":
+               $ref: "#/components/responses/BadRequest"
+           "404": 
+               $ref: "#/components/responses/NotFoundResource"
+               description: Пользователь не найден.
+   /auth/resend:
+      post:
+         summary: Перевыслать код потверждения аккаунта.
+         tags:
+           - Auth
+         parameters:
+          - in: query
+            name: email
+            required: true
+            schema: 
+               type: string
+               example: admin@example.com
+            description: Почта аккаунта.
+         responses:
+            "200":
+               description: "Код подтверждения перевыслан."
+            "400":
+               $ref: "#/components/responses/BadRequest"
+            "404": 
+               $ref: "#/components/responses/NotFoundResource"
+               description: Пользователь не найден.
+
+            
 components:
   schemas:
     TaskResponse:
@@ -106,4 +226,14 @@ components:
             description: код длиною в шесть символов
   responses:
     Unauthorized:
-      description: пользователь не авторизован
+      description: Пользователь не авторизован.
+    Forbidden:
+      description: Отказано в доступе.
+    NotFoundResource: 
+      description: Ресурс не найден.
+      content:
+        application/json:
+         schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    BadRequest:
+      description: Некоректный запрос
