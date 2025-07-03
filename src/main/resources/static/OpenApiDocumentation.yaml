@@ -1,0 +1,325 @@
+openapi: 3.1.3
+info:
+   title: task-tracker-backend
+   description: Backend сервис проекта task-tracker
+   version: 1.0.0
+servers:
+  - url: localhost:8443/api
+    description: Основной сервер.
+paths:
+   /users/me:
+    get:
+      summary: Возвращает информацию о текущем пользователе.
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Получен текущий пользователь.
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/UserResponse"
+   /auth/csrf:
+      get:
+         summary: Получение csrf токена.
+         tags:
+           - Auth
+         responses:
+           "200":
+               description: Получен токен.
+               content:
+                 application/json:
+                  schema: 
+                     type: object
+                     properties:
+                        headerName:
+                           type: string
+                           example: X-XSRF-TOKEN
+                        parameterName:
+                           type: string
+                           example: _csrf
+                        token:
+                           type: string
+                           example: 3137aba2-47d4-4879-b458-ee054c9da742
+               headers:
+                 Set-Cookie:
+                  schema: 
+                     type: string
+                     example: XSRF-TOKEN=3137aba2-47d4-4879-b458-ee054c9da742; Path=/api; Secure; HttpOnly;
+
+   /auth/sign-up:
+      post:
+         summary: Регистрация нового пользователя.
+         requestBody:
+            content:
+              application/json:
+               schema: 
+                  $ref: "#/components/schemas/UserSignUpRequest"
+         tags:
+           - Auth
+         responses:
+            "201":
+               description: Пользователь создан.
+               content:
+                  application/json:
+                     schema: 
+                        $ref: "#/components/schemas/UserResponse"
+            "403": 
+               $ref: "#/components/responses/Forbidden"
+   /auth/sign-in:
+      post:
+         summary: Авторизация пользователя.
+         description: Устанавливается JWT кука.
+         tags:
+           - Auth
+         requestBody:
+            content:
+              application/json:
+               schema: 
+                  $ref: "#/components/schemas/UserSignInRequest"
+         responses:
+           "200":
+               description: пользователь авторизован
+               content:
+                  application/json:
+                     schema: 
+                        $ref: "#/components/schemas/UserResponse"
+               headers:
+                 Set-Cookie:
+                  schema: 
+                     type: string
+                     example: __Host-auth-token=jwtToken; Path=/; Secure; HttpOnly; Expires=Wed, 02 Jul 2025 18:03:48 GMT;
+           "401": 
+               $ref: "#/components/responses/Unauthorized"
+   /auth/verify:
+      post: 
+         summary: Подтверждение аккаунта.
+         tags:
+           - Auth
+         requestBody:
+            content:
+              application/json:
+               schema: 
+                  $ref: "#/components/schemas/VerifyUserDTO"
+         responses:
+           "200":
+               description: "Аккаунт подтвержден."
+           "400":
+               $ref: "#/components/responses/BadRequest"
+           "404": 
+               $ref: "#/components/responses/NotFoundResource"
+               description: Пользователь не найден.
+   /auth/resend:
+      post:
+         summary: Перевыслать код потверждения аккаунта.
+         tags:
+           - Auth
+         parameters:
+          - in: query
+            name: email
+            required: true
+            schema: 
+               type: string
+               example: admin@example.com
+            description: Почта аккаунта.
+         responses:
+            "200":
+               description: "Код подтверждения перевыслан."
+            "400":
+               $ref: "#/components/responses/BadRequest"
+            "404": 
+               $ref: "#/components/responses/NotFoundResource"
+               description: Пользователь не найден.
+   /tasks:
+      get:
+         summary: Получение задач текущего пользователя.
+         tags:
+           - Tasks
+         responses:
+           "200": 
+               description: Получены задачи пользователя.
+               content:
+                 application/json:
+                  schema: 
+                     type: array
+                     items:
+                        $ref: "#/components/schemas/TaskResponse"
+           "404":
+               $ref: "#/components/responses/NotFoundResource"
+           "403": 
+               $ref: "#/components/responses/Forbidden"
+      post: 
+         summary: Создание задачи.
+         tags:
+           - Tasks
+         requestBody:
+            content:
+              application/json:
+               schema: 
+                  $ref: "#/components/schemas/TaskRequest"
+         responses:
+           "201":
+               content:
+                  application/json:
+                     schema: 
+                        $ref: "#/components/schemas/TaskResponse"
+               description: Задача создана.
+           "404":
+               $ref: "#/components/responses/NotFoundResource"
+           "403": 
+               $ref: "#/components/responses/Forbidden" 
+      put: 
+         summary: Обновление задачи.
+         tags:
+           - Tasks
+         requestBody:
+            content:
+              application/json:
+               schema: 
+                  $ref: "#/components/schemas/TaskRequest"
+         responses:
+           "200":
+               content:
+                  application/json:
+                     schema: 
+                        $ref: "#/components/schemas/TaskResponse"
+               description: Задача создана.
+           "404":
+               $ref: "#/components/responses/NotFoundResource"
+           "403": 
+               $ref: "#/components/responses/Forbidden" 
+   /tasks/{id}:
+      delete:
+         summary: Удаление задачи.
+         tags:
+           - Tasks
+         parameters:
+          - in: query
+            name: id
+            required: true
+            schema: 
+               type: integer
+            description: ид задачи
+         responses:
+           "204":
+               content:
+                  application/json:
+                     schema: 
+                        $ref: "#/components/schemas/TaskResponse"
+               description: Задача создана.
+           "404":
+               $ref: "#/components/responses/NotFoundResource"
+           "403": 
+               $ref: "#/components/responses/Forbidden" 
+   /tasks/complete/{id}:
+      post: 
+         summary: Выполение задачи.
+         tags:
+           - Tasks
+         
+            
+components:
+  schemas:
+    TaskResponse:
+      type: object
+      properties:
+         id:
+            type: integer
+            example: 3
+         title:
+            type: string
+            example: taskTitle
+         description:
+            type: string
+            example: taskDescription
+         createdAt:
+            type: string
+            format: date-time
+            example: "2025-07-01 23:16:52"
+            description: таймзона москвы
+         status:
+            type: string
+            enum: [IN_PROGRESS, COMPLETE]
+            example: COMPLETE
+    TaskRequest:
+      type: object
+      properties:
+         id:
+            type: integer
+            example: 3
+         title:
+            type: string
+            example: taskTitle
+         description:
+            type: string
+            example: taskDescription
+         status:
+            type: string
+            enum: [IN_PROGRESS, COMPLETE]
+            example: COMPLETE
+    ErrorResponse:
+      type: object
+      properties:
+         status:
+            type: integer
+            example: 404
+         message:
+            type: string
+            example: not found
+         timestamp:
+            type: string
+            format: date-time
+            example: "2025-07-01T23:16:52.3769316"
+    UserResponse:
+      type: object
+      properties:
+         username:
+            type: string
+            example: admin
+         email: 
+            type: string
+            example: admin@example.com
+    UserSignInRequest:
+      type: object
+      properties:
+         email: 
+            type: string
+            example: admin@example.com
+         password:
+            type: string
+            example: admin
+    UserSignUpRequest:
+      type: object
+      properties:
+         username:
+            type: string
+            example: admin
+         email: 
+            type: string
+            example: admin@example.com
+         password:
+            type: string
+            example: admin
+    VerifyUserDTO:
+      type: object
+      properties:
+         email:
+            type: string
+            example: admin@example.com
+         code:
+            type: string
+            example: 123456
+            description: код длиною в шесть символов
+  responses:
+    Unauthorized:
+      description: Пользователь не авторизован.
+    Forbidden:
+      description: Отказано в доступе.
+    NotFoundResource: 
+      description: Ресурс не найден.
+      content:
+        application/json:
+         schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    BadRequest:
+      description: Некоректный запрос

@@ -65,7 +65,7 @@ public class SecurityConfig {
 		httpSecurity
 				.httpBasic(Customizer.withDefaults())
 				.authorizeHttpRequests(authorizeHttpRequest -> authorizeHttpRequest
-						.requestMatchers("/auth/**", "/error")
+						.requestMatchers("/auth/**", "/error", "/swagger-ui/**", "/v3/api-docs/**", "/OpenApiDocumentation.yaml", "/docs")
 						.permitAll()
 						.anyRequest()
 						.authenticated())
