@@ -130,7 +130,93 @@ paths:
             "404": 
                $ref: "#/components/responses/NotFoundResource"
                description: Пользователь не найден.
-
+   /tasks:
+      get:
+         summary: Получение задач текущего пользователя.
+         tags:
+           - Tasks
+         responses:
+           "200": 
+               description: Получены задачи пользователя.
+               content:
+                 application/json:
+                  schema: 
+                     type: array
+                     items:
+                        $ref: "#/components/schemas/TaskResponse"
+           "404":
+               $ref: "#/components/responses/NotFoundResource"
+           "403": 
+               $ref: "#/components/responses/Forbidden"
+      post: 
+         summary: Создание задачи.
+         tags:
+           - Tasks
+         requestBody:
+            content:
+              application/json:
+               schema: 
+                  $ref: "#/components/schemas/TaskRequest"
+         responses:
+           "201":
+               content:
+                  application/json:
+                     schema: 
+                        $ref: "#/components/schemas/TaskResponse"
+               description: Задача создана.
+           "404":
+               $ref: "#/components/responses/NotFoundResource"
+           "403": 
+               $ref: "#/components/responses/Forbidden" 
+      put: 
+         summary: Обновление задачи.
+         tags:
+           - Tasks
+         requestBody:
+            content:
+              application/json:
+               schema: 
+                  $ref: "#/components/schemas/TaskRequest"
+         responses:
+           "200":
+               content:
+                  application/json:
+                     schema: 
+                        $ref: "#/components/schemas/TaskResponse"
+               description: Задача создана.
+           "404":
+               $ref: "#/components/responses/NotFoundResource"
+           "403": 
+               $ref: "#/components/responses/Forbidden" 
+   /tasks/{id}:
+      delete:
+         summary: Удаление задачи.
+         tags:
+           - Tasks
+         parameters:
+          - in: query
+            name: id
+            required: true
+            schema: 
+               type: integer
+            description: ид задачи
+         responses:
+           "204":
+               content:
+                  application/json:
+                     schema: 
+                        $ref: "#/components/schemas/TaskResponse"
+               description: Задача создана.
+           "404":
+               $ref: "#/components/responses/NotFoundResource"
+           "403": 
+               $ref: "#/components/responses/Forbidden" 
+   /tasks/complete/{id}:
+      post: 
+         summary: Выполение задачи.
+         tags:
+           - Tasks
+         
             
 components:
   schemas:
