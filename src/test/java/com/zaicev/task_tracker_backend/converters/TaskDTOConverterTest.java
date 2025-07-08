@@ -37,12 +37,14 @@ public class TaskDTOConverterTest {
 	@Test
 	void toDTO_shouldMapAllFieldsIncludingCreatedAt() {
 		Task taskEntity = new Task();
-		LocalDateTime dateTime = LocalDateTime.of(2023, 1, 1, 12, 0);
+		LocalDateTime createdAt = LocalDateTime.of(2023, 1, 1, 12, 0);
+		LocalDateTime completeAt = LocalDateTime.of(2023, 1, 1, 23, 0);
 		taskEntity.setId(2L);
 		taskEntity.setTitle("DTO Test");
 		taskEntity.setDescription("DTO Description");
 		taskEntity.setStatus(TaskStatus.COMPLETE);
-		taskEntity.setCreatedAt(dateTime);
+		taskEntity.setCreatedAt(createdAt);
+		taskEntity.setComletedAt(completeAt);
 
 		TaskResponseDTO result = taskDTOConverter.toDTO(taskEntity);
 
@@ -50,6 +52,7 @@ public class TaskDTOConverterTest {
 		assertEquals("DTO Test", result.title());
 		assertEquals("DTO Description", result.description());
 		assertEquals(TaskStatus.COMPLETE, result.status());
-		assertEquals(dateTime, result.createdAt());
+		assertEquals(createdAt, result.createdAt());
+		assertEquals(completeAt, result.completedAt());
 	}
 }
