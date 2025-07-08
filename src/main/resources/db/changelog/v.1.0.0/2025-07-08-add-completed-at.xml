@@ -4,8 +4,9 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
     	
-    	<include file="2025-05-07-initial-schema.xml" relativeToChangelogFile="true"/>
-    	<include file="2025-05-19-add-created-at-task.xml" relativeToChangelogFile="true"/>
-    	<include file="2025-05-30-user-extension.xml" relativeToChangelogFile="true"/>
-    	<include file="2025-07-08-add-completed-at.xml" relativeToChangelogFile="true"/>
+    	<changeSet id="add-column-completed-at" author="zaicev">
+    		<addColumn tableName="tasks">
+    			<column name="completed_at" type="datetime"></column>
+    		</addColumn>
+    	</changeSet>
 </databaseChangeLog>
