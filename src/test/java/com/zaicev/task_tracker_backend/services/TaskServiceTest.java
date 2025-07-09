@@ -103,24 +103,30 @@ public class TaskServiceTest {
 	@Test
 	void updateTask_WithValidData_UpdatesTask() throws Exception{
 		TaskRequestDTO requestDTO = new TaskRequestDTO(validTaskId, validTitle, validDescription, TaskStatus.IN_PROGRESS);
-		when(userRepository.findByEmail(validEmail)).thenReturn(Optional.of(testUser));
-		when(taskRepository.save(any(Task.class))).thenReturn(testTask);
+		LocalDateTime createdAt = LocalDateTime.of(2023, 1, 1, 12, 0);
+		LocalDateTime completeAt = LocalDateTime.of(2023, 1, 1, 23, 0);
+		Task updatedTask = new Task(validTaskId, "somTitle", "somDesc", createdAt, completeAt, TaskStatus.COMPLETE, testUser);
+		
+		when(taskRepository.findById(validTaskId)).thenReturn(Optional.of(updatedTask));
 
-		TaskResponseDTO result = taskService.updateTask(requestDTO, validEmail);
+		TaskResponseDTO result = taskService.updateTask(requestDTO);
 
 		assertNotNull(result);
 		verify(taskRepository).save(any(Task.class));
 		assertEquals(validTaskId, result.id());
 		assertEquals(validTitle, result.title());
 		assertEquals(validDescription, result.description());
+		assertEquals(TaskStatus.IN_PROGRESS, result.status());
+		assertEquals(createdAt, result.createdAt());
+		assertEquals(completeAt, result.completedAt());
 	}
 	
 	@Test
-	void updateTask_WithoutUser_ThrowsUserNotFoundException(){
-		when(userRepository.findByEmail(invalidEmail)).thenReturn(Optional.empty());
-		TaskRequestDTO requestDTO = new TaskRequestDTO(null, validTitle, validDescription, TaskStatus.IN_PROGRESS);
+	void updateTask_WithoutUser_ThrowsEntityNotFoundException(){
+		when(taskRepository.findById(validTaskId)).thenReturn(Optional.empty());
+		TaskRequestDTO requestDTO = new TaskRequestDTO(validTaskId, validTitle, validDescription, TaskStatus.IN_PROGRESS);
 		
-		assertThrows(UserNotFoundException.class, () -> taskService.updateTask(requestDTO, invalidEmail));
+		assertThrows(EntityNotFoundException.class, () -> taskService.updateTask(requestDTO));
 	}
 
 	@Test

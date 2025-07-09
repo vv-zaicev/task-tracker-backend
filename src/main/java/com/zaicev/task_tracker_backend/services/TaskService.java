@@ -43,12 +43,14 @@ public class TaskService {
 		return taskDTOConverter.toDTO(task);
 	}
 
-	public TaskResponseDTO updateTask(TaskRequestDTO taskRequestDTO, String userEmail) throws UserNotFoundException{
-		Task task = taskDTOConverter.toEntity(taskRequestDTO);
-		User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail));
+	public TaskResponseDTO updateTask(TaskRequestDTO taskRequestDTO){
+		Task task = taskRepository.findById(taskRequestDTO.id()).orElseThrow(() -> new EntityNotFoundException("task with %d id not found".formatted(taskRequestDTO.id())));
 
-		task.setUser(user);
-		task = taskRepository.save(task);
+		task.setTitle(taskRequestDTO.title());
+		task.setDescription(taskRequestDTO.description());
+		task.setStatus(taskRequestDTO.status());
+		
+		taskRepository.save(task);
 
 		return taskDTOConverter.toDTO(task);
 	}
