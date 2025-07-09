@@ -59,7 +59,7 @@ public class TaskControllerTest {
 
 	private LocalDateTime now = LocalDateTime.now();
 
-	private TaskResponseDTO responseDTO = new TaskResponseDTO(1L, "title", "description", now, TaskStatus.IN_PROGRESS);
+	private TaskResponseDTO responseDTO = new TaskResponseDTO(1L, "title", "description", now, now, TaskStatus.IN_PROGRESS);
 
 	private TaskRequestDTO requestDTO = new TaskRequestDTO(1L, "somTitle", "desc", TaskStatus.IN_PROGRESS);
 

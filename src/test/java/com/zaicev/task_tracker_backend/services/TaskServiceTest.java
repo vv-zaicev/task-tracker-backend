@@ -1,5 +1,7 @@
 package com.zaicev.task_tracker_backend.services;
 
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -7,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -83,6 +86,10 @@ public class TaskServiceTest {
 		assertNotNull(result);
 		verify(taskRepository).save(any(Task.class));
 		assertEquals(validTaskId, result.id());
+		assertEquals(validTitle, result.title());
+		assertEquals(validDescription, result.description());
+		assertEquals(TaskStatus.IN_PROGRESS, result.status());
+		assertNull(result.completedAt());
 	}
 	
 	@Test
@@ -149,11 +156,15 @@ public class TaskServiceTest {
 	void completeTask_WithValidId_UpdatesStatus() {
 		when(taskRepository.findById(validTaskId)).thenReturn(Optional.of(testTask));
 
+		LocalDateTime before = LocalDateTime.now();
 		TaskResponseDTO result = taskService.completeTask(validTaskId);
-
+		LocalDateTime after = LocalDateTime.now();
+		
 		assertEquals(TaskStatus.COMPLETE, testTask.getStatus());
 		verify(taskRepository).save(testTask);
 		assertEquals(TaskStatus.COMPLETE, result.status());
+		assertNotNull(result.completedAt());
+		assertTrue(!result.completedAt().isBefore(before) && !result.completedAt().isAfter(after));
 	}
 
 	@Test
