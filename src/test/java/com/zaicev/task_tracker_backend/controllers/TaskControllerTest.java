@@ -226,7 +226,7 @@ public class TaskControllerTest {
 	@Test
 	void updateTask_WithCorrectData_ShouldReturnUpdatedTask() throws Exception {
 		when(taskService.checkUserRights(1L, "test@example.com")).thenReturn(true);
-		when(taskService.updateTask(any(), eq(testUser.getEmail()))).thenReturn(responseDTO);
+		when(taskService.updateTask(any())).thenReturn(responseDTO);
 
 		mockMvc.perform(put("/tasks")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -262,7 +262,7 @@ public class TaskControllerTest {
 	void updateTask_ThrowEntityNotFoundException_ShouldReturnNotFount() throws Exception {
 		Exception exception = new EntityNotFoundException("Entity not found");
 		when(taskService.checkUserRights(1L, "test@example.com")).thenReturn(true);
-		when(taskService.updateTask(any(), eq(testUser.getEmail()))).thenThrow(exception);
+		when(taskService.updateTask(any())).thenThrow(exception);
 
 		mockMvc.perform(put("/tasks")
 				.contentType(MediaType.APPLICATION_JSON)

@@ -61,7 +61,7 @@ public class TaskController {
 	@PutMapping
 	public TaskResponseDTO updateTask(@AuthenticationPrincipal User user, @RequestBody TaskRequestDTO taskRequestDTO) throws UserNotFoundException {
 		if (taskService.checkUserRights(taskRequestDTO.id(), user.getEmail())) {
-			return taskService.updateTask(taskRequestDTO, user.getEmail());
+			return taskService.updateTask(taskRequestDTO);
 		}
 
 		throw new AccessDeniedException("User doesn't have permission to update this task");
