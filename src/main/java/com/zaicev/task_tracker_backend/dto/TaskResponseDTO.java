@@ -10,5 +10,6 @@ public record TaskResponseDTO(
 		String title,
 		String description,
 		@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Europe/Moscow") LocalDateTime createdAt,
+		@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Europe/Moscow") LocalDateTime completedAt,
 		TaskStatus status) {
 }

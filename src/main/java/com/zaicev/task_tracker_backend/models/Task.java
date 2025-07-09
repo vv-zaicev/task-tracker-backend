@@ -33,6 +33,9 @@ public class Task {
 	@Column(name = "created_at")
 	private LocalDateTime createdAt;
 	
+	@Column(name = "completed_at")
+	private LocalDateTime comletedAt;
+	
 	@Enumerated(EnumType.STRING)
 	private TaskStatus status;
 	

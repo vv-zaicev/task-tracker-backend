@@ -68,6 +68,7 @@ public class TaskService {
 		Task task = taskRepository.findById(taskId)
 				.orElseThrow(() -> new EntityNotFoundException(String.format("Entity with %d id not found", taskId)));
 		task.setStatus(TaskStatus.COMPLETE);
+		task.setComletedAt(LocalDateTime.now());
 		taskRepository.save(task);
 
 		return taskDTOConverter.toDTO(task);
