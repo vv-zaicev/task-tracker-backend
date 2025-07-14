@@ -77,7 +77,7 @@ public class TaskServiceTest {
 
 	@Test
 	void createTask_WithValidData_ReturnsTaskDTO() throws Exception{
-		TaskRequestDTO requestDTO = new TaskRequestDTO(null, validTitle, validDescription, TaskStatus.IN_PROGRESS);
+		TaskRequestDTO requestDTO = new TaskRequestDTO(null, validTitle, validDescription, null);
 		when(userRepository.findByEmail(validEmail)).thenReturn(Optional.of(testUser));
 		when(taskRepository.save(any(Task.class))).thenReturn(testTask);
 
@@ -95,7 +95,7 @@ public class TaskServiceTest {
 	@Test
 	void createTask_WithoutUser_ThrowsUserNotFoundException(){
 		when(userRepository.findByEmail(invalidEmail)).thenReturn(Optional.empty());
-		TaskRequestDTO requestDTO = new TaskRequestDTO(null, validTitle, validDescription, TaskStatus.IN_PROGRESS);
+		TaskRequestDTO requestDTO = new TaskRequestDTO(null, validTitle, validDescription,null);
 		
 		assertThrows(UserNotFoundException.class, () -> taskService.createTask(requestDTO, invalidEmail));
 	}

@@ -38,6 +38,8 @@ public class TaskService {
 
 		task.setCreatedAt(LocalDateTime.now());
 		task.setUser(userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail)));
+		task.setStatus(TaskStatus.IN_PROGRESS);
+		
 		task = taskRepository.save(task);
 
 		return taskDTOConverter.toDTO(task);
