@@ -216,7 +216,24 @@ paths:
          summary: Выполение задачи.
          tags:
            - Tasks
-         
+         parameters:
+          - in: query
+            name: id
+            required: true
+            schema: 
+               type: integer
+            description: ид задачи
+         responses:
+           "200":
+               content:
+                  application/json:
+                     schema: 
+                        $ref: "#/components/schemas/TaskResponse"
+               description: Задача создана.
+           "404":
+               $ref: "#/components/responses/NotFoundResource"
+           "403": 
+               $ref: "#/components/responses/Forbidden" 
             
 components:
   schemas:
