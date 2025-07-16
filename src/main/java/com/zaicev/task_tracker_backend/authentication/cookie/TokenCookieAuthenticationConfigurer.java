@@ -5,34 +5,30 @@ import java.util.function.Function;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationFilter;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.stereotype.Component;
 
 import com.zaicev.task_tracker_backend.models.Token;
-import com.zaicev.task_tracker_backend.services.TokenAuthenticationUserDetailsService;
 
 import jakarta.servlet.http.Cookie;
+import lombok.RequiredArgsConstructor;
 
 @Component
+@RequiredArgsConstructor
 public class TokenCookieAuthenticationConfigurer extends AbstractHttpConfigurer<TokenCookieAuthenticationConfigurer, HttpSecurity> {
 
 	private final Function<String, Token> tokenCookieStringDeserializer;
 
-	private final TokenAuthenticationUserDetailsService tokenAuthenticationUserDetailsService;
+	private final AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> tokenAuthenticationUserDetailsService;
 
 	private final JwtBlacklistLogoutHandler jwtBlacklistLogoutHandler;
-
-	public TokenCookieAuthenticationConfigurer(Function<String, Token> tokenCookieStringDeserializer,
-			TokenAuthenticationUserDetailsService tokenAuthenticationUserDetailsService, JwtBlacklistLogoutHandler jwtBlacklistLogoutHandler) {
-		this.tokenCookieStringDeserializer = tokenCookieStringDeserializer;
-		this.tokenAuthenticationUserDetailsService = tokenAuthenticationUserDetailsService;
-		this.jwtBlacklistLogoutHandler = jwtBlacklistLogoutHandler;
-	}
 
 	@Override
 	public void init(HttpSecurity builder) throws Exception {
