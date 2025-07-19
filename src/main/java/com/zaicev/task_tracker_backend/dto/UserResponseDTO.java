@@ -1,5 +1,5 @@
 package com.zaicev.task_tracker_backend.dto;
 
-public record UserResponseDTO (String username, String email){
+public record UserResponseDTO (Long id, String username, String email){
 
 }

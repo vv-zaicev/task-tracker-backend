@@ -53,7 +53,7 @@ public class JsonAuthenticationSuccessHandlerTest {
 	@Test
 	void onAuthenticationSuccess_ShouldWriteCorrectJson() throws Exception {
 
-		UserResponseDTO expectedDTO = new UserResponseDTO("testUser", "test@example.com");
+		UserResponseDTO expectedDTO = new UserResponseDTO(1L, "testUser", "test@example.com");
 		String expectedJson = testObjectMapper.writeValueAsString(expectedDTO);
 
 		when(userDTOConverter.toDTO(user)).thenReturn(expectedDTO);

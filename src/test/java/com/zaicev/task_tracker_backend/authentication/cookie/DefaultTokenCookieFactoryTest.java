@@ -39,6 +39,8 @@ public class DefaultTokenCookieFactoryTest {
 
 	@InjectMocks
 	private DefaultTokenCookieFactory factory;
+	
+	private UserResponseDTO userDTO = new UserResponseDTO(1L, "testUser", "test@example.com");
 
 	private User testUser;
 
@@ -53,7 +55,6 @@ public class DefaultTokenCookieFactoryTest {
 
 	@Test
 	void apply_shouldCreateValidToken() throws JsonProcessingException {
-		UserResponseDTO userDTO = new UserResponseDTO("testUser", "test@example.com");
 		String expectedJson = objectMapper.writeValueAsString(userDTO);
 		factory.setTokenTtl(Duration.ofMinutes(15));
 		when(authentication.getPrincipal()).thenReturn(testUser);
@@ -72,7 +73,6 @@ public class DefaultTokenCookieFactoryTest {
 
 	@Test
 	void apply_WithoutTokenTtl_ShouldExpiresAtIsAfterThanCreatedAt() {
-		UserResponseDTO userDTO = new UserResponseDTO("testUser", "test@example.com");
 		when(authentication.getPrincipal()).thenReturn(testUser);
 		when(userDTOConverter.toDTO(testUser)).thenReturn(userDTO);
 

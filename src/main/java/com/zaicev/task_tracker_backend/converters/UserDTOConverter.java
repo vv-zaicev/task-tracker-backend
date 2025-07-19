@@ -22,6 +22,6 @@ public interface UserDTOConverter {
 	};
 	
 	default public UserResponseDTO toDTO(User user) {
-		return new UserResponseDTO(user.getUsername(), user.getEmail());
+		return new UserResponseDTO(user.getId() ,user.getUsername(), user.getEmail());
 	};
 }

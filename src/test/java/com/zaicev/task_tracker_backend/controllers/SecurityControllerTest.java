@@ -81,7 +81,7 @@ public class SecurityControllerTest {
 	@Test
 	void signUp_WithCsrf_shouldCreateUser() throws Exception {
 		UserSignUpRequestDTO requestDto = new UserSignUpRequestDTO("username", "user@example.com", "password123");
-		UserResponseDTO responseDto = new UserResponseDTO("username", "user@example.com");
+		UserResponseDTO responseDto = new UserResponseDTO(1L, "username", "user@example.com");
 
 		when(securityService.signup(any(UserSignUpRequestDTO.class))).thenReturn(responseDto);
 
@@ -90,9 +90,11 @@ public class SecurityControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(requestDto)))
 				.andExpect(status().isCreated())
-				.andExpect(jsonPath("$", aMapWithSize(2)))
+				.andExpect(jsonPath("$", aMapWithSize(3)))
 				.andExpect(jsonPath("$.email").value("user@example.com"))
-				.andExpect(jsonPath("$.username").value("username"));
+				.andExpect(jsonPath("$.username").value("username"))
+				.andExpect(jsonPath("$.id").value(1L));
+		
 	}
 
 	@Test

@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
 import com.zaicev.task_tracker_backend.dto.UserResponseDTO;
 import com.zaicev.task_tracker_backend.models.User;
+import com.zaicev.task_tracker_backend.repository.UserRepository;
 
 @WebMvcTest(UsersController.class)
 public class UserControllerTest {
@@ -27,6 +28,9 @@ public class UserControllerTest {
 
 	@MockitoBean
 	private UserDTOConverter userDTOConverter;
+	
+	@MockitoBean
+	private UserRepository userRepository;
 
 	@Test
 	void getMe_ShouldReturnUserData() throws Exception {
@@ -40,7 +44,7 @@ public class UserControllerTest {
 				Collections.emptyList());
 
 		Mockito.when(userDTOConverter.toDTO(testUser))
-				.thenReturn(new UserResponseDTO("testUser", "test@example.com"));
+				.thenReturn(new UserResponseDTO(1L, "testUser", "test@example.com"));
 
 		mockMvc.perform(get("/users/me").with(SecurityMockMvcRequestPostProcessors.authentication(authentication)))
 				.andExpect(status().isOk())

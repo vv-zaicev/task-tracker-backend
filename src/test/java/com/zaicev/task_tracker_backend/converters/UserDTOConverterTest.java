@@ -19,6 +19,7 @@ public class UserDTOConverterTest {
 	private final String USERNAME = "john_doe";
 	private final String EMAIL = "john@example.com";
 	private final String PASSWORD = "securePassword123";
+	private final Long ID = 1L;
 
 	@Test
 	void toEntity_fromSignUpRequest_shouldMapAllFields() {
@@ -43,11 +44,12 @@ public class UserDTOConverterTest {
 
 	@Test
 	void toDTO_shouldMapUsernameAndEmail() {
-		User user = User.builder().email(EMAIL).username(USERNAME).password(PASSWORD).build();
+		User user = User.builder().id(ID).email(EMAIL).username(USERNAME).password(PASSWORD).build();
 
 		UserResponseDTO result = converter.toDTO(user);
 
 		assertEquals(EMAIL, result.email());
 		assertEquals(USERNAME, result.username());
+		assertEquals(ID, result.id());
 	}
 }
