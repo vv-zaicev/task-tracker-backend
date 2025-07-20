@@ -3,6 +3,7 @@ package com.zaicev.task_tracker_backend.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -45,33 +46,57 @@ public class TaskRepositoryIntegrationTest {
 				.username("user2")
 				.password("somPass")
 				.build());
+
+		createTask("first", testUser, TaskStatus.COMPLETE, LocalDateTime.now().minusDays(1), LocalDateTime.now().minusDays(2));
+		createTask("second", testUser, TaskStatus.COMPLETE, LocalDateTime.now(), LocalDateTime.now().minusDays(1));
+		createTask("third", testUser, TaskStatus.COMPLETE, LocalDateTime.now().minusDays(10), LocalDateTime.now().minusDays(12));
+
+		createTask("fourth", testUser, TaskStatus.IN_PROGRESS, null, LocalDateTime.now().minusHours(1));
+		createTask("fifth", testUser, TaskStatus.IN_PROGRESS, null, LocalDateTime.now().minusHours(2));
+	}
+
+	private Task createTask(String title, User user, TaskStatus status, LocalDateTime completedAt, LocalDateTime createdAt) {
+		Task task = new Task();
+		task.setTitle(title);
+		task.setDescription("Test Description");
+		task.setStatus(status);
+		task.setComletedAt(completedAt);
+		task.setCreatedAt(createdAt);
+		task.setUser(user);
+		return entityManager.persistFlushFind(task);
 	}
 
 	@Test
 	void findByUser_WithZeroTasks_EmptyList() {
-		List<Task> tasks = taskRepository.findByUser(testUser);
+		List<Task> tasks = taskRepository.findByUser(anotherUser);
 		assertTrue(tasks.isEmpty());
 	}
 
 	@Test
 	void findByUser_WithSomeTasks_TaskList() {
-		Task task1 = createTaskForUser("Task 1", testUser);
-		Task task2 = createTaskForUser("Task 2", testUser);
-		createTaskForUser("Another User Task", anotherUser);
+		createTask("anotherTask", anotherUser, TaskStatus.IN_PROGRESS, null, LocalDateTime.now().minusHours(2));
 
 		List<Task> foundTasks = taskRepository.findByUser(testUser);
 		assertThat(foundTasks)
-				.hasSize(2)
-				.extracting(Task::getTitle)
-				.containsExactlyInAnyOrder(task1.getTitle(), task2.getTitle());
+				.hasSize(5)
+				.allMatch(task -> task.getUser() == testUser);
 	}
 
-	private Task createTaskForUser(String title, User user) {
-		Task task = new Task();
-		task.setTitle(title);
-		task.setDescription("Test Description");
-		task.setStatus(TaskStatus.IN_PROGRESS);
-		task.setUser(user);
-		return entityManager.persistFlushFind(task);
+	@Test
+	void testFindTopCompletedUserTaskFromDate() {
+		LocalDateTime fromDate = LocalDateTime.now().minusDays(2);
+		List<Task> tasks = taskRepository.findTopCompletedUserTaskFromDate(testUser.getId(), fromDate, 5);
+
+		assertThat(tasks).hasSize(2);
+		assertThat(tasks).allMatch(
+				task -> task.getStatus() == TaskStatus.COMPLETE && task.getComletedAt().isAfter(fromDate) || task.getComletedAt().isEqual(fromDate));
+	}
+
+	@Test
+	void testFindTopInProgressUserTask() {
+		List<Task> tasks = taskRepository.findTopInProgressUserTask(testUser.getId(), 1);
+
+		assertThat(tasks).hasSize(1);
+		assertThat(tasks.get(0).getStatus()).isEqualTo(TaskStatus.IN_PROGRESS);
 	}
 }
