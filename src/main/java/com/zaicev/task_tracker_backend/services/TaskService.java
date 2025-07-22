@@ -16,42 +16,38 @@ import com.zaicev.task_tracker_backend.repository.TaskRepository;
 import com.zaicev.task_tracker_backend.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
-import lombok.Setter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 public class TaskService {
 	private final TaskRepository taskRepository;
 
 	private final UserRepository userRepository;
 
-	@Setter
-	private TaskDTOConverter taskDTOConverter = new TaskDTOConverter() {};
+	private final TaskDTOConverter taskDTOConverter;
 
-	public TaskService(TaskRepository taskRepository, UserRepository userRepository) {
-		this.taskRepository = taskRepository;
-		this.userRepository = userRepository;
-
-	}
-
-	public TaskResponseDTO createTask(TaskRequestDTO taskRequestDTO, String userEmail) throws UserNotFoundException{
+	public TaskResponseDTO createTask(TaskRequestDTO taskRequestDTO, String userEmail) throws UserNotFoundException {
+		User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail));
 		Task task = taskDTOConverter.toEntity(taskRequestDTO);
 
 		task.setCreatedAt(LocalDateTime.now());
-		task.setUser(userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail)));
+		task.setUser(user);
 		task.setStatus(TaskStatus.IN_PROGRESS);
-		
+
 		task = taskRepository.save(task);
 
 		return taskDTOConverter.toDTO(task);
 	}
 
-	public TaskResponseDTO updateTask(TaskRequestDTO taskRequestDTO){
-		Task task = taskRepository.findById(taskRequestDTO.id()).orElseThrow(() -> new EntityNotFoundException("task with %d id not found".formatted(taskRequestDTO.id())));
+	public TaskResponseDTO updateTask(TaskRequestDTO taskRequestDTO) {
+		Task task = taskRepository.findById(taskRequestDTO.id())
+				.orElseThrow(() -> new EntityNotFoundException("task with %d id not found".formatted(taskRequestDTO.id())));
 
 		task.setTitle(taskRequestDTO.title());
 		task.setDescription(taskRequestDTO.description());
 		task.setStatus(taskRequestDTO.status());
-		
+
 		taskRepository.save(task);
 
 		return taskDTOConverter.toDTO(task);
@@ -61,11 +57,25 @@ public class TaskService {
 		taskRepository.deleteById(taskId);
 	}
 
-	public List<TaskResponseDTO> getUserTasks(String userEmail) throws UserNotFoundException{
+	public List<TaskResponseDTO> getUserTasks(String userEmail) throws UserNotFoundException {
 		User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail));
 		List<Task> tasks = taskRepository.findByUser(user);
 
 		return tasks.stream().map(taskDTOConverter::toDTO).toList();
+	}
+
+	public List<TaskResponseDTO> getTopCompletedUserTaskFromDate(Long userId, int top, LocalDateTime from) {
+		return taskRepository.findTopCompletedUserTaskFromDate(userId, from, top)
+				.stream()
+				.map(taskDTOConverter::toDTO)
+				.toList();
+	}
+
+	public List<TaskResponseDTO> getTopInProgressUserTask(Long userId, int top) {
+		return taskRepository.findTopInProgressUserTask(userId, top)
+				.stream()
+				.map(taskDTOConverter::toDTO)
+				.toList();
 	}
 
 	public TaskResponseDTO completeTask(Long taskId) {
@@ -78,7 +88,7 @@ public class TaskService {
 		return taskDTOConverter.toDTO(task);
 	}
 
-	public boolean checkUserRights(Long taskId, String userEmail) throws UserNotFoundException{
+	public boolean checkUserRights(Long taskId, String userEmail) throws UserNotFoundException {
 		Task task = taskRepository.findById(taskId)
 				.orElseThrow(() -> new EntityNotFoundException(String.format("Entity with %d id not found", taskId)));
 		User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new UserNotFoundException(userEmail));
