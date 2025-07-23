@@ -1,6 +1,8 @@
 package com.zaicev.task_tracker_backend.services;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.stream.StreamSupport;
 
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zaicev.task_tracker_backend.converters.UserDTOConverter;
 import com.zaicev.task_tracker_backend.dto.UserResponseDTO;
 import com.zaicev.task_tracker_backend.models.Token;
 import com.zaicev.task_tracker_backend.models.User;
@@ -24,9 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService, AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
 
-
 	private final UserRepository userRepository;
 	
+	private final UserDTOConverter userDTOConverter;
+
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
 	private final JwtBlacklistService jwtBlacklistService;
@@ -37,7 +41,7 @@ public class UserService implements UserDetailsService, AuthenticationUserDetail
 				.orElseThrow(() -> new UsernameNotFoundException("user with %s email is not found".formatted(username)));
 		return user;
 	}
-	
+
 	@Override
 	public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken authenticationToken) throws UsernameNotFoundException {
 		if (authenticationToken.getPrincipal() instanceof Token token) {
@@ -59,6 +63,13 @@ public class UserService implements UserDetailsService, AuthenticationUserDetail
 		}
 
 		throw new UsernameNotFoundException("Principal must be of type Token");
+	}
+
+	public List<UserResponseDTO> getUsers() {
+		return StreamSupport
+				.stream(userRepository.findAll().spliterator(), false)
+				.map(userDTOConverter::toDTO)
+				.toList();
 	}
 
 }
