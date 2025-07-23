@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,23 +26,30 @@ import com.zaicev.task_tracker_backend.models.User;
 import com.zaicev.task_tracker_backend.services.TaskService;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/tasks")
 public class TaskController {
 
 	private final TaskService taskService;
 
-	public TaskController(TaskService taskService) {
-		super();
-		this.taskService = taskService;
-	}
-
 	@GetMapping
 	public List<TaskResponseDTO> getTasks(@AuthenticationPrincipal User user) throws UserNotFoundException {
 		return taskService.getUserTasks(user.getEmail());
+	}
+	
+	@GetMapping("/completed")
+	public List<TaskResponseDTO> getCompletedTasks(@RequestParam Long userId, @RequestParam int top, @RequestParam LocalDateTime from){
+		return taskService.getTopCompletedUserTaskFromDate(userId, top, from);
+	}
+	
+	@GetMapping("/inProgress")
+	public List<TaskResponseDTO> getInProgressTasks(@RequestParam Long userId, @RequestParam Integer top){
+		return taskService.getTopInProgressUserTask(userId, top);
 	}
 
 	@PostMapping

@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -56,6 +57,8 @@ public class TaskControllerTest {
 	private User testUser;
 
 	private Authentication authentication;
+	
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
 	private LocalDateTime now = LocalDateTime.now();
 
@@ -79,6 +82,7 @@ public class TaskControllerTest {
 				.andExpect(jsonPath("$[0].id").value(1))
 				.andExpect(jsonPath("$[0].title").value("title"))
 				.andExpect(jsonPath("$[0].description").value("description"))
+				.andExpect(jsonPath("$[0].completedAt").value(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
 				.andExpect(jsonPath("$[0].createdAt").value(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
 				.andExpect(jsonPath("$[0].status").value(TaskStatus.IN_PROGRESS.toString()));
 	}
@@ -117,7 +121,7 @@ public class TaskControllerTest {
 				.andExpect(jsonPath("$.createdAt").value(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
 				.andExpect(jsonPath("$.status").value(TaskStatus.IN_PROGRESS.toString()));
 	}
-
+	
 	@Test
 	void complete_ThrowUserNotFoundException_ShouldReturnNotFount() throws Exception {
 		Exception exception = new UserNotFoundException(testUser.getEmail());
@@ -158,6 +162,64 @@ public class TaskControllerTest {
 	@Test
 	void completeTask_WithoutAuthentication_ShouldReturnUnauthorized() throws Exception {
 		mockMvc.perform(post("/tasks/complete/1").with(SecurityMockMvcRequestPostProcessors.csrf()))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void getCompletedTasks_WithCorrectData_shouldReturnListOfTasks() throws Exception {
+		Long userId = 1L;
+		int top = 3;
+		LocalDateTime from = LocalDateTime.of(2023, 1, 1, 0, 0);
+		List<TaskResponseDTO> tasks = List.of(responseDTO);
+
+		when(taskService.getTopCompletedUserTaskFromDate(eq(userId), eq(top), eq(from)))
+				.thenReturn(tasks);
+
+		mockMvc.perform(get("/tasks/completed")
+				.with(SecurityMockMvcRequestPostProcessors.authentication(authentication))
+				.param("userId", userId.toString())
+				.param("top", String.valueOf(top))
+				.param("from", from.toString()))
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].id").value(1))
+				.andExpect(jsonPath("$[0].title").value("title"))
+				.andExpect(jsonPath("$[0].description").value("description"))
+				.andExpect(jsonPath("$[0].completedAt").value(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+				.andExpect(jsonPath("$[0].createdAt").value(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+				.andExpect(jsonPath("$[0].status").value(TaskStatus.IN_PROGRESS.toString()));
+	}
+	
+	@Test
+	void getCompletedTasks_WithoutAuthentication_ShouldReturnUnauthorized() throws Exception {
+		mockMvc.perform(get("/tasks/completed"))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void getInProgressTasks_WithCorrectData_shouldReturnListOfTasks() throws Exception {
+		Long userId = 2L;
+		int top = 2;
+		List<TaskResponseDTO> tasks = List.of(responseDTO);
+
+		when(taskService.getTopInProgressUserTask(eq(userId), eq(top)))
+				.thenReturn(tasks);
+
+		mockMvc.perform(get("/tasks/inProgress")
+				.with(SecurityMockMvcRequestPostProcessors.authentication(authentication))
+				.param("userId", userId.toString())
+				.param("top", String.valueOf(top)))
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].id").value(1))
+				.andExpect(jsonPath("$[0].title").value("title"))
+				.andExpect(jsonPath("$[0].description").value("description"))
+				.andExpect(jsonPath("$[0].completedAt").value(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+				.andExpect(jsonPath("$[0].createdAt").value(now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
+				.andExpect(jsonPath("$[0].status").value(TaskStatus.IN_PROGRESS.toString()));
+	}
+	
+	@Test
+	void getInProgressTasks_WithoutAuthentication_ShouldReturnUnauthorized() throws Exception {
+		mockMvc.perform(get("/completed"))
 				.andExpect(status().isUnauthorized());
 	}
 
